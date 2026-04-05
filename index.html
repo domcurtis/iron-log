@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Iron Log</title>
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -129,6 +130,19 @@
   .log-card .top .date { font-size: 12px; color: var(--text3); font-family: var(--mono); }
   .log-card .ex-name { font-size: 13px; color: var(--text2); }
   .log-card .ex-sets { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 2px; margin-bottom: 6px; }
+  .log-card .card-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .log-card .edit-btn { background: none; border: 1px solid var(--input-border); border-radius: 6px; padding: 6px 14px; color: var(--text2); font-size: 12px; font-family: var(--mono); cursor: pointer; }
+  .log-card .delete-log-btn { background: none; border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; padding: 6px 14px; color: var(--red); font-size: 12px; font-family: var(--mono); cursor: pointer; }
+
+  /* ─── Last time hint ─── */
+  .last-hint { font-size: 11px; color: var(--text4); font-family: var(--mono); margin-bottom: 6px; }
+
+  /* ─── Exercise history ─── */
+  .ex-history-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
+  .ex-history-card .ex-h-name { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .ex-history-card .ex-h-row { display: flex; justify-content: space-between; font-size: 12px; font-family: var(--mono); padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .ex-history-card .ex-h-date { color: var(--text3); }
+  .ex-history-card .ex-h-data { color: var(--text2); }
 
   /* ─── Templates manage ─── */
   .template-manage-card {
@@ -178,8 +192,8 @@
   <div class="modal-box">
     <p id="modal-text"></p>
     <div class="modal-btns">
-      <button class="modal-no" onclick="closeModal()">No</button>
-      <button class="modal-yes" onclick="confirmModal()">Apply All</button>
+      <button class="modal-no" onclick="closeModal()">Cancel</button>
+      <button class="modal-yes" id="modal-confirm" onclick="confirmModal()">Confirm</button>
     </div>
   </div>
 </div>
@@ -251,8 +265,9 @@ function saveDataSync() {
 }
 
 // ─── Modal ───
-function showModal(text, cb) {
+function showModal(text, cb, confirmText) {
   document.getElementById("modal-text").textContent = text;
+  document.getElementById("modal-confirm").textContent = confirmText || "Confirm";
   document.getElementById("modal").classList.remove("hidden");
   modalCallback = cb;
 }
@@ -290,6 +305,14 @@ function render() {
     ha.innerHTML = "";
     db.classList.add("hidden");
     app.innerHTML = renderImport();
+  } else if (state.view === "editLog") {
+    ha.innerHTML = "";
+    db.classList.add("hidden");
+    app.innerHTML = renderEditLog();
+  } else if (state.view === "exerciseHistory") {
+    ha.innerHTML = "";
+    db.classList.add("hidden");
+    app.innerHTML = renderExerciseHistory();
   }
 }
 
@@ -350,6 +373,9 @@ function renderWorkout() {
       </div>
       <div class="col-labels"><span class="w">Weight</span><span class="r">Reps</span><span class="c"></span></div>`;
 
+    const lastHint = getLastPerformance(ex.name);
+    if (lastHint) h += `<div class="last-hint">Last: ${esc(lastHint)}</div>`;
+
     const defaultReps = parseReps(ex.reps);
     sets.forEach((s, i) => {
       const repsVal = (s.reps === defaultReps && !s.completed) ? "" : s.reps;
@@ -385,7 +411,7 @@ function updateSet(exName, idx, field, val) {
         showModal(`Apply ${val} kg to all sets of ${exName}?`, () => {
           sets.forEach(s => { if (!s.weight) s.weight = val; });
           render();
-        });
+        }, "Apply All");
       }
     }
   } else if (field === "reps") {
@@ -496,9 +522,12 @@ function renderHistory() {
         <span class="date">${esc(log.date)}</span></div>`;
       log.exercises.forEach(ex => {
         const done = ex.sets.filter(s => s.completed).map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ");
-        h += `<div class="ex-name">${esc(ex.name)}</div><div class="ex-sets">${esc(done)}</div>`;
+        h += `<button class="ex-name" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;padding:0;text-align:left;text-decoration:underline;text-decoration-color:var(--text4)" onclick="showExerciseHistory('${esc(ex.name)}')">${esc(ex.name)}</button><div class="ex-sets">${esc(done)}</div>`;
       });
-      h += `</div>`;
+      h += `<div class="card-actions">
+        <button class="edit-btn" onclick="editLog('${log.id}')">Edit</button>
+        <button class="delete-log-btn" onclick="deleteLog('${log.id}')">Delete</button>
+      </div></div>`;
     });
   }
   h += `</div>`;
@@ -568,9 +597,12 @@ function renderTemplates() {
 }
 
 function deleteTemplate(id) {
-  state.templates = state.templates.filter(t => t.id !== id);
-  saveDataSync();
-  render();
+  const t = state.templates.find(x => x.id === id);
+  showModal(`Delete "${t ? t.name : 'template'}"? This cannot be undone.`, () => {
+    state.templates = state.templates.filter(t => t.id !== id);
+    saveDataSync();
+    render();
+  });
 }
 
 // ─── Import ───
@@ -648,6 +680,116 @@ function importJSON(file) {
   reader.readAsText(file);
 }
 
+// ─── Progression ───
+function getLastPerformance(exName) {
+  for (let i = state.logs.length - 1; i >= 0; i--) {
+    const ex = state.logs[i].exercises.find(e => e.name === exName);
+    if (ex) {
+      const done = ex.sets.filter(s => s.completed);
+      if (done.length > 0) return done.map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ");
+    }
+  }
+  return null;
+}
+
+function showExerciseHistory(exName) {
+  state.exerciseHistoryName = exName;
+  state.view = "exerciseHistory";
+  render();
+}
+
+function renderExerciseHistory() {
+  const name = state.exerciseHistoryName;
+  let h = `<div class="section">
+    <button class="link-btn" onclick="go('history')" style="margin-bottom:16px">← Back</button>
+    <div class="section-title">${esc(name)} History</div>
+    <div class="ex-history-card"><div class="ex-h-name">${esc(name)}</div>`;
+
+  let found = false;
+  [...state.logs].reverse().forEach(log => {
+    const ex = log.exercises.find(e => e.name === name);
+    if (!ex) return;
+    const done = ex.sets.filter(s => s.completed);
+    if (done.length === 0) return;
+    found = true;
+    const summary = done.map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ");
+    h += `<div class="ex-h-row"><span class="ex-h-date">${esc(log.date)}</span><span class="ex-h-data">${esc(summary)}</span></div>`;
+  });
+  if (!found) h += `<p style="color:var(--text3);font-size:13px">No history yet.</p>`;
+  h += `</div></div>`;
+  return h;
+}
+
+// ─── Edit Log ───
+let editLogData = null;
+
+function editLog(logId) {
+  const log = state.logs.find(l => l.id === logId);
+  if (!log) return;
+  editLogData = JSON.parse(JSON.stringify(log));
+  state.view = "editLog";
+  render();
+}
+
+function renderEditLog() {
+  const log = editLogData;
+  if (!log) { go("history"); return ""; }
+  let h = `<div class="section">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <button class="link-btn" onclick="cancelEditLog()">← Cancel</button>
+      <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">${esc(log.date)}</span>
+    </div>
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:16px">${esc(log.workoutName)}</h2>`;
+
+  log.exercises.forEach((ex, ei) => {
+    h += `<div class="exercise-card">
+      <div class="exercise-header">
+        <h3>${esc(ex.name)}</h3>
+        <span class="spec">${ex.targetSets}×${esc(String(ex.targetReps))}</span>
+      </div>
+      <div class="col-labels"><span class="w">Weight</span><span class="r">Reps</span><span class="c"></span></div>`;
+    ex.sets.forEach((s, si) => {
+      h += `<div class="set-row${s.completed ? '' : ' completed'}">
+        <span class="set-num">S${s.setNum}</span>
+        <input type="number" inputmode="decimal" placeholder="kg" class="weight-input"
+          value="${esc(String(s.weight))}"
+          onchange="editLogData.exercises[${ei}].sets[${si}].weight=this.value">
+        <input type="number" inputmode="numeric" placeholder="0" class="reps-input"
+          value="${s.reps}"
+          onchange="editLogData.exercises[${ei}].sets[${si}].reps=parseInt(this.value)||0">
+        <button class="check-btn${s.completed ? ' done' : ''}"
+          onclick="editLogData.exercises[${ei}].sets[${si}].completed=!editLogData.exercises[${ei}].sets[${si}].completed;render()">✓</button>
+      </div>`;
+    });
+    h += `</div>`;
+  });
+
+  h += `<button class="primary-btn finish-btn" onclick="saveEditLog()">Save Changes</button></div>`;
+  return h;
+}
+
+function cancelEditLog() { editLogData = null; go("history"); }
+
+function saveEditLog() {
+  if (!editLogData) return;
+  const idx = state.logs.findIndex(l => l.id === editLogData.id);
+  if (idx >= 0) {
+    state.logs[idx] = editLogData;
+    saveDataSync();
+  }
+  editLogData = null;
+  go("history");
+}
+
+function deleteLog(logId) {
+  const log = state.logs.find(l => l.id === logId);
+  showModal(`Delete workout from ${log ? log.date : ""}? This cannot be undone.`, () => {
+    state.logs = state.logs.filter(l => l.id !== logId);
+    saveDataSync();
+    render();
+  });
+}
+
 // ─── Init ───
 (() => {
   const data = loadDataSync();
@@ -656,6 +798,7 @@ function importJSON(file) {
     if (data.logs) state.logs = data.logs;
   }
   render();
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
 })();
 </script>
 </body>
