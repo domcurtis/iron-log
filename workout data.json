@@ -252,7 +252,7 @@
           ]
         },
         {
-          "name": "Mach. LH Press",
+          "name": "1 Arm LM Press",
           "target": { "sets": 3, "reps": "10" },
           "completed": [
             { "set": 1, "weight_kg": 27.5, "reps": 10 },
@@ -309,7 +309,7 @@
           ]
         },
         {
-          "name": "Mach. LH Press",
+          "name": "1 Arm LM Press",
           "target": { "sets": 3, "reps": "10" },
           "completed": [
             { "set": 1, "weight_kg": 27.5, "reps": 10 },
@@ -370,7 +370,7 @@
           ]
         },
         {
-          "name": "Mach. LH Press",
+          "name": "1 Arm LM Press",
           "target": { "sets": 3, "reps": "10" },
           "completed": [
             { "set": 1, "weight_kg": 29, "reps": 10 },
@@ -431,7 +431,7 @@
           ]
         },
         {
-          "name": "Mach. LH Press",
+          "name": "1 Arm LM Press",
           "target": { "sets": 3, "reps": "10" },
           "completed": [
             { "set": 1, "weight_kg": 29, "reps": 10 },

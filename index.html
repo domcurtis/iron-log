@@ -797,6 +797,11 @@ function deleteLog(logId) {
     if (data.templates) state.templates = data.templates;
     if (data.logs) state.logs = data.logs;
   }
+  // Migrate renamed exercises in saved templates
+  state.templates.forEach(t => t.exercises.forEach(e => {
+    if (e.name === "Mach. LH Press") e.name = "1 Arm LM Press";
+  }));
+  saveDataSync();
   render();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
 })();
