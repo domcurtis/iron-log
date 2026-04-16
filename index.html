@@ -294,10 +294,6 @@ function initSetsData(ex) {
   return Array.from({length: ex.sets}, (_, i) => ({ id: uid(), setNum: i+1, weight: "", reps: dr, completed: false }));
 }
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-// iOS Safari positions the caret at the tap point after focus fires; deferring select() overrides it.
-function selectOnFocus(el) {
-  setTimeout(() => { try { el.select(); el.setSelectionRange(0, (el.value || "").length); } catch {} }, 0);
-}
 
 function loadDataSync() {
   try {
@@ -446,13 +442,9 @@ function renderWorkout() {
         <span class="set-num">S${s.setNum}</span>
         <input type="text" inputmode="decimal" pattern="[0-9]*\\.?[0-9]*" placeholder="kg" class="weight-input${isPrefilled ? ' prefilled' : ''}"
           value="${esc(String(s.weight))}"
-          onfocus="selectOnFocus(this)"
-          onclick="this.select()"
           onchange="updateSet('${esc(ex.name)}',${i},'weight',this.value)">
         <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="${defaultReps}" class="reps-input"
           value="${repsVal}"
-          onfocus="selectOnFocus(this)"
-          onclick="this.select()"
           onchange="updateSet('${esc(ex.name)}',${i},'reps',this.value)">
         <button class="check-btn${s.completed ? ' done' : ''}"
           onclick="toggleSet('${esc(ex.name)}',${i})">✓</button>
@@ -929,13 +921,9 @@ function renderEditLog() {
         <span class="set-num">S${s.setNum}</span>
         <input type="text" inputmode="decimal" pattern="[0-9]*\\.?[0-9]*" placeholder="kg" class="weight-input"
           value="${esc(String(s.weight))}"
-          onfocus="selectOnFocus(this)"
-          onclick="this.select()"
           onchange="editLogData.exercises[${ei}].sets[${si}].weight=this.value">
         <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" class="reps-input"
           value="${s.reps}"
-          onfocus="selectOnFocus(this)"
-          onclick="this.select()"
           onchange="editLogData.exercises[${ei}].sets[${si}].reps=parseInt(this.value)||0">
         <button class="check-btn${s.completed ? ' done' : ''}"
           onclick="editLogData.exercises[${ei}].sets[${si}].completed=!editLogData.exercises[${ei}].sets[${si}].completed;render()">✓</button>
