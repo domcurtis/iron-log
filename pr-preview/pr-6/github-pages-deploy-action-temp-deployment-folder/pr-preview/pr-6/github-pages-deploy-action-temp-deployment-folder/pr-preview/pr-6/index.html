@@ -35,6 +35,7 @@
   input.prefilled { color: var(--text3); }
   button { font-family: var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
+  /* ─── Header ─── */
   .header { padding: 20px 20px 0; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   .header h1 span { color: var(--green); }
@@ -47,6 +48,7 @@
   .header-actions button:active { border-color: var(--green); color: var(--green); }
   .date-bar { padding: 8px 20px 0; font-size: 12px; color: var(--text4); font-family: var(--mono); }
 
+  /* ─── Template selector ─── */
   .section { padding: 20px; }
   .section-title { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); margin-bottom: 16px; }
   .template-btn {
@@ -63,6 +65,7 @@
     color: var(--green); font-size: 15px;
   }
 
+  /* ─── Exercise card ─── */
   .exercise-card {
     background: var(--card); border-radius: 12px; padding: 16px;
     margin-bottom: 12px; border: 1px solid var(--border);
@@ -85,6 +88,7 @@
   .col-labels .r { width: 72px; }
   .col-labels .c { width: 48px; }
 
+  /* ─── Set row ─── */
   .set-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border2); }
   .set-row.completed { opacity: 0.5; }
   .set-num { width: 32px; font-size: 13px; color: var(--text3); font-family: var(--mono); text-align: center; flex-shrink: 0; font-weight: 600; }
@@ -99,11 +103,13 @@
   .check-btn.done { background: var(--green); color: #000; }
   .check-btn:active { transform: scale(0.92); }
 
+  /* ─── Progress bar ─── */
   .progress-wrap { margin: 12px 0 20px; }
   .progress-labels { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; color: var(--text4); font-family: var(--mono); }
   .progress-track { height: 3px; background: var(--border2); border-radius: 2px; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s ease; }
 
+  /* ─── Buttons ─── */
   .primary-btn {
     width: 100%; padding: 14px; background: var(--green); border: none; border-radius: 10px;
     color: #000; font-size: 16px; font-weight: 700;
@@ -114,6 +120,7 @@
   .cancel-link { background: none; border: none; color: var(--text3); font-size: 13px; }
   .cancel-link-sm { background: none; border: none; color: var(--text3); font-size: 14px; }
 
+  /* ─── New workout form ─── */
   .form-exercise {
     background: var(--card); border-radius: 10px; padding: 12px;
     margin-bottom: 8px; border: 1px solid var(--border);
@@ -129,6 +136,7 @@
     border-radius: 8px; color: var(--green); font-size: 14px; margin-top: 4px; margin-bottom: 16px;
   }
 
+  /* ─── History ─── */
   .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .export-btn {
     background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px;
@@ -146,6 +154,7 @@
   .log-card .edit-btn { background: none; border: 1px solid var(--input-border); border-radius: 6px; padding: 6px 14px; color: var(--text2); font-size: 12px; font-family: var(--mono); cursor: pointer; }
   .log-card .delete-log-btn { background: none; border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; padding: 6px 14px; color: var(--red); font-size: 12px; font-family: var(--mono); cursor: pointer; }
 
+  /* ─── Last time hint ─── */
   .last-hint {
     font-size: 13px; color: var(--text); font-family: var(--mono);
     margin: 4px 0 10px; padding: 10px 12px;
@@ -156,12 +165,14 @@
   .last-hint .last-set { color: var(--text); font-weight: 500; }
   .last-hint .last-sep { color: var(--text4); }
 
+  /* ─── Exercise history ─── */
   .ex-history-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
   .ex-history-card .ex-h-name { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
   .ex-history-card .ex-h-row { display: flex; justify-content: space-between; font-size: 12px; font-family: var(--mono); padding: 4px 0; border-bottom: 1px solid var(--border); }
   .ex-history-card .ex-h-date { color: var(--text3); }
   .ex-history-card .ex-h-data { color: var(--text2); }
 
+  /* ─── Templates manage ─── */
   .template-manage-card {
     background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px;
     border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
@@ -170,6 +181,7 @@
   .template-manage-card .info .exercises { font-size: 12px; color: var(--text3); margin-top: 2px; }
   .delete-btn { background: none; border: none; color: var(--red); font-size: 20px; padding: 4px 8px; }
 
+  /* ─── Modal ─── */
   .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.8); display: flex; align-items: center;
@@ -185,6 +197,7 @@
   .modal-no { background: #222; color: var(--text2); }
   .modal-yes { background: var(--green); color: #000; font-weight: 700; }
 
+  /* ─── Import ─── */
   .import-upload-area {
     border: 2px dashed var(--input-border); border-radius: 12px; padding: 40px 20px;
     text-align: center; cursor: pointer; transition: border-color 0.2s;
@@ -198,6 +211,7 @@
   .import-status.success { background: rgba(34,197,94,0.1); color: var(--green); }
   .import-status.error { background: rgba(239,68,68,0.1); color: var(--red); }
 
+  /* ─── Swap picker ─── */
   .swap-picker {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.92); z-index: 150;
@@ -252,6 +266,7 @@
 <div id="app"></div>
 
 <script>
+// ─── Data ───
 const DEFAULT_TEMPLATES = [
   { id:"t1", name:"① Lower (Uni)", exercises:[
     {name:"Back Squat",sets:3,reps:"8-10"},{name:"Bulg. Split Squat",sets:3,reps:"10"},
@@ -280,6 +295,7 @@ const STORAGE_KEY = "workout-app-data";
 let state = { templates: DEFAULT_TEMPLATES, logs: [], view: "home", currentWorkout: null, setsMap: {} };
 let modalCallback = null;
 
+// ─── Helpers ───
 const uid = () => Math.random().toString(36).slice(2, 10);
 const todayStr = () => new Date().toISOString().slice(0, 10);
 function parseReps(r) {
@@ -294,11 +310,13 @@ function initSetsData(ex) {
   return Array.from({length: ex.sets}, (_, i) => ({ id: uid(), setNum: i+1, weight: "", reps: dr, completed: false }));
 }
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-// iOS Safari positions the caret at the tap point after focus fires; deferring select() overrides it.
+// iOS Safari places the caret at the touch point after focus fires, so we
+// defer the selection to the next tick to override that positioning.
 function selectOnFocus(el) {
   setTimeout(() => { try { el.select(); el.setSelectionRange(0, (el.value || "").length); } catch {} }, 0);
 }
 
+// ─── Storage ───
 function loadDataSync() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -311,6 +329,7 @@ function saveDataSync() {
   } catch(e) { console.error("Save failed:", e); }
 }
 
+// ─── Modal ───
 function showModal(text, cb, confirmText) {
   document.getElementById("modal-text").textContent = text;
   document.getElementById("modal-confirm").textContent = confirmText || "Confirm";
@@ -320,6 +339,7 @@ function showModal(text, cb, confirmText) {
 function closeModal() { document.getElementById("modal").classList.add("hidden"); modalCallback = null; }
 function confirmModal() { if (modalCallback) modalCallback(); closeModal(); }
 
+// ─── Render ───
 function render() {
   const app = document.getElementById("app");
   const ha = document.getElementById("header-actions");
@@ -363,6 +383,7 @@ function render() {
 
 function go(view) { state.view = view; render(); }
 
+// ─── Home ───
 function renderHome() {
   let h = `<div class="section"><div class="section-title">Choose Workout</div>`;
   state.templates.forEach(t => {
@@ -398,6 +419,7 @@ function buildSetsWithLast(ex) {
   return sets;
 }
 
+// ─── Workout ───
 function renderWorkout() {
   const w = state.currentWorkout;
   let completed = 0, total = 0;
@@ -472,6 +494,7 @@ function updateSet(exName, idx, field, val) {
   if (field === "weight") {
     sets[idx].weight = val;
     sets[idx].prefilled = false;
+    // offer to apply to all if first set, respecting prefilled placeholders
     if (idx === 0 && val) {
       const empties = sets.slice(1).filter(s => !s.weight || s.prefilled);
       if (empties.length > 0) {
@@ -520,6 +543,7 @@ function finishWorkout() {
   render();
 }
 
+// ─── New Workout ───
 let newExercises = [];
 let editTemplateId = null;
 function renderNewWorkout() {
@@ -600,6 +624,7 @@ function saveNewWorkout() {
   startWorkout(template.id);
 }
 
+// ─── History ───
 function renderHistory() {
   let h = `<div class="section">
     <div class="history-header">
@@ -645,6 +670,7 @@ function exportJSON() {
   };
   const json = JSON.stringify(data, null, 2);
 
+  // Show export overlay
   const overlay = document.createElement("div");
   overlay.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:200;display:flex;flex-direction:column;padding:16px;";
   overlay.innerHTML = `
@@ -672,6 +698,7 @@ function exportJSON() {
   document.getElementById("export-close").onclick = () => overlay.remove();
 }
 
+// ─── Templates manage ───
 function renderTemplates() {
   let h = `<div class="section">
     <button class="link-btn" onclick="go('home')" style="margin-bottom:16px">← Back</button>
@@ -701,6 +728,7 @@ function deleteTemplate(id) {
   });
 }
 
+// ─── Import ───
 function renderImport() {
   return `<div class="section">
     <button class="link-btn" onclick="go('home')" style="margin-bottom:16px">← Back</button>
@@ -735,6 +763,7 @@ function importJSON(file) {
         statusEl.textContent = "Invalid format: missing 'workouts' array.";
         return;
       }
+      // Build set of existing logs for dedup
       const existing = new Set(state.logs.map(l => l.date + "|" + l.workoutName));
       let imported = 0, skipped = 0;
       data.workouts.forEach(w => {
@@ -774,6 +803,7 @@ function importJSON(file) {
   reader.readAsText(file);
 }
 
+// ─── Progression ───
 function getLastPerformance(exName) {
   const sets = getLastPerformanceSets(exName);
   return sets ? sets.map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ") : null;
@@ -789,6 +819,7 @@ function getLastPerformanceSets(exName) {
   return null;
 }
 
+// ─── Swap ───
 function openSwapPicker(exIdx) {
   const current = state.currentWorkout.exercises[exIdx];
   const seen = new Map();
@@ -897,6 +928,7 @@ function renderExerciseHistory() {
   return h;
 }
 
+// ─── Edit Log ───
 let editLogData = null;
 
 function editLog(logId) {
@@ -970,12 +1002,14 @@ function deleteLog(logId) {
   });
 }
 
+// ─── Init ───
 (() => {
   const data = loadDataSync();
   if (data) {
     if (data.templates) state.templates = data.templates;
     if (data.logs) state.logs = data.logs;
   }
+  // Migrate renamed exercises in saved templates
   state.templates.forEach(t => t.exercises.forEach(e => {
     if (e.name === "Mach. LH Press") e.name = "1 Arm LM Press";
   }));
