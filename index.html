@@ -24,18 +24,28 @@
   }
   input[type="number"], input[type="text"] {
     background: var(--input-bg); border: 1px solid var(--input-border);
-    border-radius: 6px; padding: 10px 8px; color: var(--text); font-size: 15px;
+    border-radius: 8px; padding: 14px 10px; color: var(--text); font-size: 16px;
     font-family: var(--mono); text-align: center; outline: none; width: 100%;
+    -webkit-appearance: none; appearance: none; min-height: 48px;
   }
-  input[type="number"]:focus, input[type="text"]:focus { border-color: #333; }
-  button { font-family: var(--font); cursor: pointer; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]:focus, input[type="text"]:focus { border-color: var(--green); background: #151515; }
+  input.prefilled { color: var(--text3); }
+  button { font-family: var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
   /* ─── Header ─── */
   .header { padding: 20px 20px 0; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   .header h1 span { color: var(--green); }
-  .header-actions { display: flex; gap: 12px; }
-  .header-actions button { background: none; border: none; color: var(--text3); font-size: 13px; }
+  .header-actions { display: flex; gap: 8px; }
+  .header-actions button {
+    background: var(--card); border: 1px solid var(--border2); color: var(--text);
+    font-size: 14px; font-weight: 500; padding: 8px 12px; border-radius: 8px;
+    min-height: 38px;
+  }
+  .header-actions button:active { border-color: var(--green); color: var(--green); }
   .date-bar { padding: 8px 20px 0; font-size: 12px; color: var(--text4); font-family: var(--mono); }
 
   /* ─── Template selector ─── */
@@ -61,29 +71,37 @@
     margin-bottom: 12px; border: 1px solid var(--border);
   }
   .exercise-card.all-done { border-color: rgba(34,197,94,0.2); }
-  .exercise-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .exercise-header h3 { font-size: 16px; font-weight: 600; }
+  .exercise-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .exercise-header .title-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .exercise-header h3 { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .exercise-header h3.done { color: var(--green); }
   .exercise-header .spec { font-size: 12px; color: var(--text3); font-family: var(--mono); }
-  .col-labels { display: flex; gap: 8px; padding: 4px 0 4px 28px; margin-bottom: 2px; }
+  .swap-btn {
+    background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text2);
+    font-size: 12px; font-family: var(--mono); padding: 6px 10px; border-radius: 8px;
+    flex-shrink: 0; min-height: 32px; letter-spacing: 0.5px;
+  }
+  .swap-btn:active { border-color: var(--green); color: var(--green); }
+  .col-labels { display: flex; gap: 8px; padding: 4px 0 4px 32px; margin-bottom: 2px; }
   .col-labels span { font-size: 10px; color: var(--text4); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
   .col-labels .w { flex: 1; }
-  .col-labels .r { width: 56px; }
-  .col-labels .c { width: 36px; }
+  .col-labels .r { width: 72px; }
+  .col-labels .c { width: 48px; }
 
   /* ─── Set row ─── */
   .set-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border2); }
   .set-row.completed { opacity: 0.5; }
-  .set-num { width: 28px; font-size: 12px; color: var(--text3); font-family: var(--mono); text-align: center; flex-shrink: 0; }
+  .set-num { width: 32px; font-size: 13px; color: var(--text3); font-family: var(--mono); text-align: center; flex-shrink: 0; font-weight: 600; }
   .set-row .weight-input { flex: 1; }
-  .set-row .reps-input { width: 56px; flex-shrink: 0; }
+  .set-row .reps-input { width: 72px; flex-shrink: 0; }
   .check-btn {
-    width: 36px; height: 36px; border-radius: 8px; border: none;
-    background: var(--border2); color: var(--text4); font-size: 18px;
+    width: 48px; height: 48px; border-radius: 10px; border: none;
+    background: var(--border2); color: var(--text4); font-size: 22px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    transition: all 0.15s;
+    transition: all 0.15s; -webkit-tap-highlight-color: transparent;
   }
   .check-btn.done { background: var(--green); color: #000; }
+  .check-btn:active { transform: scale(0.92); }
 
   /* ─── Progress bar ─── */
   .progress-wrap { margin: 12px 0 20px; }
@@ -121,9 +139,11 @@
   /* ─── History ─── */
   .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .export-btn {
-    background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px;
-    padding: 8px 14px; color: var(--green); font-size: 13px; font-family: var(--mono);
+    background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px;
+    padding: 12px 18px; color: var(--green); font-size: 15px; font-weight: 600; font-family: var(--mono);
+    min-height: 44px;
   }
+  .export-btn:active { border-color: var(--green); }
   .log-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
   .log-card .top { display: flex; justify-content: space-between; margin-bottom: 8px; }
   .log-card .top .name { font-size: 16px; font-weight: 600; }
@@ -135,7 +155,15 @@
   .log-card .delete-log-btn { background: none; border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; padding: 6px 14px; color: var(--red); font-size: 12px; font-family: var(--mono); cursor: pointer; }
 
   /* ─── Last time hint ─── */
-  .last-hint { font-size: 11px; color: var(--text4); font-family: var(--mono); margin-bottom: 6px; }
+  .last-hint {
+    font-size: 13px; color: var(--text); font-family: var(--mono);
+    margin: 4px 0 10px; padding: 10px 12px;
+    background: rgba(34,197,94,0.06); border-left: 3px solid rgba(34,197,94,0.5); border-radius: 6px;
+    display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center;
+  }
+  .last-hint .last-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--font); font-weight: 600; }
+  .last-hint .last-set { color: var(--text); font-weight: 500; }
+  .last-hint .last-sep { color: var(--text4); }
 
   /* ─── Exercise history ─── */
   .ex-history-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
@@ -182,6 +210,38 @@
   .import-status { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 13px; font-family: var(--mono); }
   .import-status.success { background: rgba(34,197,94,0.1); color: var(--green); }
   .import-status.error { background: rgba(239,68,68,0.1); color: var(--red); }
+
+  /* ─── Swap picker ─── */
+  .swap-picker {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92); z-index: 150;
+    display: flex; flex-direction: column; padding: 16px;
+  }
+  .swap-picker-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px; max-width: 480px; width: 100%; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0;
+  }
+  .swap-picker-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .swap-picker-head h3 { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .swap-picker-close { background: none; border: none; color: var(--text2); font-size: 28px; line-height: 1; padding: 0 4px; }
+  .swap-picker-search { text-align: left !important; }
+  .swap-picker-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 6px; }
+  .swap-picker-item {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 14px 14px; color: var(--text); text-align: left;
+    font-size: 15px; min-height: 48px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .swap-picker-item:active { border-color: var(--green); }
+  .swap-picker-item .item-meta { font-size: 11px; color: var(--text3); font-family: var(--mono); flex-shrink: 0; }
+  .swap-picker-empty { color: var(--text3); font-size: 13px; text-align: center; padding: 20px; }
+
+  .edit-template-btn {
+    background: none; border: 1px solid var(--input-border); border-radius: 6px;
+    padding: 6px 12px; color: var(--text2); font-size: 12px; font-family: var(--mono);
+    margin-right: 4px;
+  }
+  .edit-template-btn:active { border-color: var(--green); color: var(--green); }
 
   .hidden { display: none !important; }
 </style>
@@ -337,9 +397,21 @@ function startWorkout(id) {
   if (!t) return;
   state.currentWorkout = JSON.parse(JSON.stringify(t));
   state.setsMap = {};
-  t.exercises.forEach(ex => { state.setsMap[ex.name] = initSetsData(ex); });
+  t.exercises.forEach(ex => { state.setsMap[ex.name] = buildSetsWithLast(ex); });
   state.view = "workout";
   render();
+}
+
+function buildSetsWithLast(ex) {
+  const sets = initSetsData(ex);
+  const last = getLastPerformanceSets(ex.name);
+  if (last && last.length > 0) {
+    sets.forEach((s, i) => {
+      const src = last[Math.min(i, last.length - 1)];
+      if (src && src.weight) { s.weight = String(src.weight); s.prefilled = true; }
+    });
+  }
+  return sets;
 }
 
 // ─── Workout ───
@@ -363,29 +435,39 @@ function renderWorkout() {
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
     </div>`;
 
-  w.exercises.forEach(ex => {
+  w.exercises.forEach((ex, exIdx) => {
     const sets = state.setsMap[ex.name] || [];
     const allDone = sets.length > 0 && sets.every(s => s.completed);
     h += `<div class="exercise-card${allDone ? ' all-done' : ''}">
       <div class="exercise-header">
-        <h3 class="${allDone ? 'done' : ''}">${esc(ex.name)}</h3>
-        <span class="spec">${ex.sets}×${esc(ex.reps)}</span>
-      </div>
-      <div class="col-labels"><span class="w">Weight</span><span class="r">Reps</span><span class="c"></span></div>`;
+        <div class="title-wrap">
+          <h3 class="${allDone ? 'done' : ''}">${esc(ex.name)}</h3>
+          <span class="spec">${ex.sets}×${esc(ex.reps)}</span>
+        </div>
+        <button class="swap-btn" onclick="openSwapPicker(${exIdx})">⇄ Swap</button>
+      </div>`;
 
-    const lastHint = getLastPerformance(ex.name);
-    if (lastHint) h += `<div class="last-hint">Last: ${esc(lastHint)}</div>`;
+    const lastSets = getLastPerformanceSets(ex.name);
+    if (lastSets && lastSets.length > 0) {
+      const chips = lastSets.map(s => `<span class="last-set">${esc(String(s.weight||"—"))}×${esc(String(s.reps))}</span>`).join('<span class="last-sep">·</span>');
+      h += `<div class="last-hint"><span class="last-label">Last time</span>${chips}</div>`;
+    }
+
+    h += `<div class="col-labels"><span class="w">Weight (kg)</span><span class="r">Reps</span><span class="c"></span></div>`;
 
     const defaultReps = parseReps(ex.reps);
     sets.forEach((s, i) => {
       const repsVal = (s.reps === defaultReps && !s.completed) ? "" : s.reps;
+      const isPrefilled = s.weight !== "" && s.prefilled === true && !s.completed;
       h += `<div class="set-row${s.completed ? ' completed' : ''}">
         <span class="set-num">S${s.setNum}</span>
-        <input type="number" inputmode="decimal" placeholder="kg" class="weight-input"
+        <input type="number" inputmode="decimal" step="0.5" placeholder="kg" class="weight-input${isPrefilled ? ' prefilled' : ''}"
           value="${esc(String(s.weight))}"
+          onfocus="this.select()"
           onchange="updateSet('${esc(ex.name)}',${i},'weight',this.value)">
         <input type="number" inputmode="numeric" placeholder="${defaultReps}" class="reps-input"
           value="${repsVal}"
+          onfocus="this.select()"
           onchange="updateSet('${esc(ex.name)}',${i},'reps',this.value)">
         <button class="check-btn${s.completed ? ' done' : ''}"
           onclick="toggleSet('${esc(ex.name)}',${i})">✓</button>
@@ -404,12 +486,13 @@ function updateSet(exName, idx, field, val) {
   if (!sets || !sets[idx]) return;
   if (field === "weight") {
     sets[idx].weight = val;
-    // offer to apply to all if first set
+    sets[idx].prefilled = false;
+    // offer to apply to all if first set, respecting prefilled placeholders
     if (idx === 0 && val) {
-      const empties = sets.slice(1).filter(s => !s.weight);
+      const empties = sets.slice(1).filter(s => !s.weight || s.prefilled);
       if (empties.length > 0) {
         showModal(`Apply ${val} kg to all sets of ${exName}?`, () => {
-          sets.forEach(s => { if (!s.weight) s.weight = val; });
+          sets.forEach(s => { if (!s.weight || s.prefilled) { s.weight = val; s.prefilled = false; } });
           render();
         }, "Apply All");
       }
@@ -425,6 +508,7 @@ function toggleSet(exName, idx) {
   const sets = state.setsMap[exName];
   if (!sets || !sets[idx]) return;
   sets[idx].completed = !sets[idx].completed;
+  if (sets[idx].completed) sets[idx].prefilled = false;
   render();
 }
 
@@ -454,14 +538,20 @@ function finishWorkout() {
 
 // ─── New Workout ───
 let newExercises = [];
+let editTemplateId = null;
 function renderNewWorkout() {
   if (newExercises.length === 0) newExercises = [{ id: uid(), name:"", sets:3, reps:"10" }];
+  const editing = editTemplateId !== null;
+  const existing = editing ? state.templates.find(t => t.id === editTemplateId) : null;
+  const titleText = editing ? "Edit Workout" : "New Workout";
+  const saveText = editing ? "Save Changes" : "Save & Start Workout";
+  const nameValue = editing && existing ? esc(existing.name) : "";
   let h = `<div class="section">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h2 style="font-size:18px;font-weight:600">New Workout</h2>
+      <h2 style="font-size:18px;font-weight:600">${titleText}</h2>
       <button class="cancel-link-sm" onclick="cancelNewWorkout()">Cancel</button>
     </div>
-    <input type="text" id="new-workout-name" placeholder="Workout name" style="font-size:17px;text-align:left;margin-bottom:16px" value="">`;
+    <input type="text" id="new-workout-name" placeholder="Workout name" style="font-size:17px;text-align:left;margin-bottom:16px" value="${nameValue}">`;
 
   newExercises.forEach((ex, i) => {
     h += `<div class="form-exercise">
@@ -480,13 +570,27 @@ function renderNewWorkout() {
   });
 
   h += `<button class="add-exercise-btn" onclick="addNewEx()">+ Add Exercise</button>
-    <button class="primary-btn" onclick="saveNewWorkout()">Save & Start Workout</button></div>`;
+    <button class="primary-btn" onclick="saveNewWorkout()">${saveText}</button></div>`;
   return h;
 }
 
 function addNewEx() { newExercises.push({ id: uid(), name:"", sets:3, reps:"10" }); render(); }
 function removeNewEx(i) { newExercises.splice(i, 1); render(); }
-function cancelNewWorkout() { newExercises = []; go("home"); }
+function cancelNewWorkout() {
+  newExercises = [];
+  const wasEditing = editTemplateId !== null;
+  editTemplateId = null;
+  go(wasEditing ? "templates" : "home");
+}
+
+function editTemplate(id) {
+  const t = state.templates.find(x => x.id === id);
+  if (!t) return;
+  editTemplateId = id;
+  newExercises = t.exercises.map(e => ({ id: uid(), name: e.name, sets: e.sets, reps: e.reps }));
+  state.view = "newWorkout";
+  render();
+}
 
 function saveNewWorkout() {
   const nameEl = document.getElementById("new-workout-name");
@@ -494,10 +598,19 @@ function saveNewWorkout() {
   if (!name) return;
   const valid = newExercises.filter(e => e.name.trim());
   if (valid.length === 0) return;
-  const template = {
-    id: uid(), name,
-    exercises: valid.map(e => ({ name: e.name.trim(), sets: parseInt(e.sets)||3, reps: e.reps||"10" }))
-  };
+  const exercises = valid.map(e => ({ name: e.name.trim(), sets: parseInt(e.sets)||3, reps: e.reps||"10" }));
+
+  if (editTemplateId !== null) {
+    const t = state.templates.find(x => x.id === editTemplateId);
+    if (t) { t.name = name; t.exercises = exercises; }
+    saveDataSync();
+    newExercises = [];
+    editTemplateId = null;
+    go("templates");
+    return;
+  }
+
+  const template = { id: uid(), name, exercises };
   state.templates.push(template);
   saveDataSync();
   newExercises = [];
@@ -589,7 +702,10 @@ function renderTemplates() {
         <div class="name">${esc(t.name)}</div>
         <div class="exercises">${t.exercises.map(e => esc(e.name)).join(", ")}</div>
       </div>
-      <button class="delete-btn" onclick="deleteTemplate('${t.id}')">×</button>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button class="edit-template-btn" onclick="editTemplate('${t.id}')">Edit</button>
+        <button class="delete-btn" onclick="deleteTemplate('${t.id}')">×</button>
+      </div>
     </div>`;
   });
   h += `</div>`;
@@ -682,14 +798,99 @@ function importJSON(file) {
 
 // ─── Progression ───
 function getLastPerformance(exName) {
+  const sets = getLastPerformanceSets(exName);
+  return sets ? sets.map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ") : null;
+}
+function getLastPerformanceSets(exName) {
   for (let i = state.logs.length - 1; i >= 0; i--) {
     const ex = state.logs[i].exercises.find(e => e.name === exName);
     if (ex) {
       const done = ex.sets.filter(s => s.completed);
-      if (done.length > 0) return done.map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ");
+      if (done.length > 0) return done;
     }
   }
   return null;
+}
+
+// ─── Swap ───
+function openSwapPicker(exIdx) {
+  const current = state.currentWorkout.exercises[exIdx];
+  const seen = new Map();
+  const addName = n => { if (n && !seen.has(n)) seen.set(n, null); };
+  state.logs.forEach(l => l.exercises.forEach(e => {
+    if (!seen.has(e.name)) {
+      const done = e.sets.filter(s => s.completed);
+      const summary = done.length ? done.map(s => `${s.weight||"—"}×${s.reps}`).join(" · ") : "";
+      seen.set(e.name, summary);
+    }
+  }));
+  state.templates.forEach(t => t.exercises.forEach(e => addName(e.name)));
+  state.currentWorkout.exercises.forEach(e => seen.delete(e.name));
+  const names = [...seen.keys()].sort((a, b) => a.localeCompare(b));
+
+  const overlay = document.createElement("div");
+  overlay.className = "swap-picker";
+  overlay.innerHTML = `
+    <div class="swap-picker-box">
+      <div class="swap-picker-head">
+        <h3>Swap "${esc(current.name)}"</h3>
+        <button class="swap-picker-close" id="swap-close" aria-label="Close">×</button>
+      </div>
+      <input type="text" class="swap-picker-search" id="swap-search"
+        placeholder="Search or type a new exercise..." autocomplete="off" autocapitalize="words">
+      <div class="swap-picker-list" id="swap-list">
+        ${names.length === 0
+          ? `<div class="swap-picker-empty">No previous exercises. Type a name above.</div>`
+          : names.map(n => `<button class="swap-picker-item" data-name="${esc(n)}">
+              <span>${esc(n)}</span>
+              ${seen.get(n) ? `<span class="item-meta">${esc(seen.get(n))}</span>` : ''}
+            </button>`).join('')}
+      </div>
+      <button class="primary-btn" id="swap-confirm">Use Typed Name</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const search = document.getElementById('swap-search');
+  const list = document.getElementById('swap-list');
+  const confirmBtn = document.getElementById('swap-confirm');
+  const updateConfirm = () => { confirmBtn.disabled = !search.value.trim(); };
+  updateConfirm();
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    Array.from(list.children).forEach(btn => {
+      if (!btn.dataset || !btn.dataset.name) return;
+      btn.style.display = btn.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+    });
+    updateConfirm();
+  });
+  list.addEventListener('click', e => {
+    const btn = e.target.closest('.swap-picker-item');
+    if (!btn) return;
+    performSwap(exIdx, btn.dataset.name);
+    overlay.remove();
+  });
+  document.getElementById('swap-close').onclick = () => overlay.remove();
+  confirmBtn.onclick = () => {
+    const newName = search.value.trim();
+    if (!newName) return;
+    performSwap(exIdx, newName);
+    overlay.remove();
+  };
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function performSwap(exIdx, newName) {
+  const ex = state.currentWorkout.exercises[exIdx];
+  const oldName = ex.name;
+  if (!newName || oldName === newName) return;
+  if (state.setsMap[newName]) {
+    const suffix = " (2)";
+    newName = newName + suffix;
+  }
+  ex.name = newName;
+  delete state.setsMap[oldName];
+  state.setsMap[newName] = buildSetsWithLast(ex);
+  render();
 }
 
 function showExerciseHistory(exName) {
@@ -751,11 +952,13 @@ function renderEditLog() {
     ex.sets.forEach((s, si) => {
       h += `<div class="set-row${s.completed ? '' : ' completed'}">
         <span class="set-num">S${s.setNum}</span>
-        <input type="number" inputmode="decimal" placeholder="kg" class="weight-input"
+        <input type="number" inputmode="decimal" step="0.5" placeholder="kg" class="weight-input"
           value="${esc(String(s.weight))}"
+          onfocus="this.select()"
           onchange="editLogData.exercises[${ei}].sets[${si}].weight=this.value">
         <input type="number" inputmode="numeric" placeholder="0" class="reps-input"
           value="${s.reps}"
+          onfocus="this.select()"
           onchange="editLogData.exercises[${ei}].sets[${si}].reps=parseInt(this.value)||0">
         <button class="check-btn${s.completed ? ' done' : ''}"
           onclick="editLogData.exercises[${ei}].sets[${si}].completed=!editLogData.exercises[${ei}].sets[${si}].completed;render()">✓</button>
