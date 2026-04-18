@@ -73,12 +73,19 @@
   .exercise-header h3 { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .exercise-header h3.done { color: var(--green); }
   .exercise-header .spec { font-size: 12px; color: var(--text3); font-family: var(--mono); }
-  .swap-btn {
+  .ex-ctrls { display: flex; gap: 4px; flex-shrink: 0; }
+  .ex-ctrl-btn {
     background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text2);
-    font-size: 12px; font-family: var(--mono); padding: 6px 10px; border-radius: 8px;
-    flex-shrink: 0; min-height: 32px; letter-spacing: 0.5px;
+    width: 34px; height: 34px; border-radius: 8px; font-size: 16px; font-family: var(--mono);
+    display: flex; align-items: center; justify-content: center; padding: 0;
   }
-  .swap-btn:active { border-color: var(--green); color: var(--green); }
+  .ex-ctrl-btn:disabled { opacity: 0.25; }
+  .ex-ctrl-btn:not(:disabled):active { border-color: var(--green); color: var(--green); }
+  .ex-ctrl-btn.remove:active { border-color: var(--red); color: var(--red); }
+
+  .add-ex-fields { display: flex; gap: 8px; }
+  .add-ex-fields > div { flex: 1; }
+  .add-ex-fields label { display: block; font-size: 10px; color: var(--text4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
   .col-labels { display: flex; gap: 8px; padding: 4px 0 4px 32px; margin-bottom: 2px; }
   .col-labels span { font-size: 10px; color: var(--text4); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
   .col-labels .w { flex: 1; }
@@ -252,23 +259,25 @@
 <div id="app"></div>
 
 <script>
+const DEFAULT_PLAN_ID = "tp1";
+const DEFAULT_TRAINING_PLANS = [{ id: DEFAULT_PLAN_ID, name: "Training Plan 1" }];
 const DEFAULT_TEMPLATES = [
-  { id:"t1", name:"① Lower (Uni)", exercises:[
+  { id:"t1", trainingPlanId:DEFAULT_PLAN_ID, name:"① Lower (Uni)", exercises:[
     {name:"Back Squat",sets:3,reps:"8-10"},{name:"Bulg. Split Squat",sets:3,reps:"10"},
     {name:"Leg Curls",sets:3,reps:"10-12"},{name:"Calf Raise",sets:3,reps:"15"},
     {name:"Cable Crunch",sets:3,reps:"15"},{name:"Wood Chops",sets:2,reps:"15"}
   ]},
-  { id:"t2", name:"② Upper (Pull)", exercises:[
+  { id:"t2", trainingPlanId:DEFAULT_PLAN_ID, name:"② Upper (Pull)", exercises:[
     {name:"BB Rows",sets:4,reps:"6-8"},{name:"Incl. DB Bench",sets:3,reps:"10"},
     {name:"Lat Pull Down",sets:3,reps:"8-10"},{name:"1 Arm LM Press",sets:3,reps:"10"},
     {name:"Face Pulls",sets:3,reps:"15-20"},{name:"DB Curl",sets:3,reps:"8-12"}
   ]},
-  { id:"t3", name:"③ Lower (Hinge)", exercises:[
+  { id:"t3", trainingPlanId:DEFAULT_PLAN_ID, name:"③ Lower (Hinge)", exercises:[
     {name:"RDL",sets:4,reps:"8-10"},{name:"Hack Squat",sets:3,reps:"10-12"},
     {name:"Hip Thrust",sets:3,reps:"10-12"},{name:"Leg Extension",sets:3,reps:"12-15"},
     {name:"Pallof Press",sets:3,reps:"10"},{name:"Leg Raises",sets:3,reps:"15"}
   ]},
-  { id:"t4", name:"④ Upper (Row)", exercises:[
+  { id:"t4", trainingPlanId:DEFAULT_PLAN_ID, name:"④ Upper (Row)", exercises:[
     {name:"LM Row",sets:4,reps:"8-10"},{name:"Incl. Bench Press",sets:3,reps:"10-12"},
     {name:"1 Arm DB Row",sets:3,reps:"10-12"},{name:"Reverse Flyes",sets:3,reps:"12-15"},
     {name:"Cable Push-Down",sets:3,reps:"10-12"},{name:"Hammer Curls",sets:2,reps:"10-12"},
@@ -277,7 +286,16 @@ const DEFAULT_TEMPLATES = [
 ];
 
 const STORAGE_KEY = "workout-app-data";
-let state = { templates: DEFAULT_TEMPLATES, logs: [], view: "home", currentWorkout: null, setsMap: {} };
+let state = {
+  templates: DEFAULT_TEMPLATES,
+  logs: [],
+  exercises: [],
+  trainingPlans: DEFAULT_TRAINING_PLANS,
+  currentPlanId: null,
+  view: "plans",
+  currentWorkout: null,
+  setsMap: {}
+};
 let modalCallback = null;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -295,6 +313,32 @@ function initSetsData(ex) {
 }
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 
+function normName(n) {
+  return String(n || "")
+    .toLowerCase()
+    .replace(/[.,()'"`]/g, "")
+    .replace(/[-_/]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+function resolveExerciseId(name, { create = true } = {}) {
+  const key = normName(name);
+  if (!key) return null;
+  const hit = state.exercises.find(e =>
+    normName(e.name) === key || (e.aliases || []).some(a => normName(a) === key)
+  );
+  if (hit) {
+    if (name && name !== hit.name && !(hit.aliases || []).includes(name)) {
+      (hit.aliases = hit.aliases || []).push(name);
+    }
+    return hit.id;
+  }
+  if (!create) return null;
+  const rec = { id: uid(), name: name.trim(), aliases: [] };
+  state.exercises.push(rec);
+  return rec.id;
+}
+
 function loadDataSync() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -303,7 +347,13 @@ function loadDataSync() {
 }
 function saveDataSync() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ templates: state.templates, logs: state.logs }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      templates: state.templates,
+      logs: state.logs,
+      exercises: state.exercises,
+      trainingPlans: state.trainingPlans,
+      currentPlanId: state.currentPlanId
+    }));
   } catch(e) { console.error("Save failed:", e); }
 }
 
@@ -321,7 +371,11 @@ function render() {
   const ha = document.getElementById("header-actions");
   const db = document.getElementById("date-bar");
 
-  if (state.view === "home") {
+  if (state.view === "plans") {
+    ha.innerHTML = "";
+    db.classList.add("hidden");
+    app.innerHTML = renderPlans();
+  } else if (state.view === "home") {
     ha.innerHTML = `<button onclick="go('templates')">Templates</button><button onclick="go('import')">Import</button><button onclick="go('history')">History</button>`;
     db.textContent = new Date().toLocaleDateString("en-US", { weekday:"long", month:"short", day:"numeric" });
     db.classList.remove("hidden");
@@ -359,15 +413,57 @@ function render() {
 
 function go(view) { state.view = view; render(); }
 
+function renderPlans() {
+  let h = `<div class="section"><div class="section-title">Select Training Plan</div>`;
+  state.trainingPlans.forEach(p => {
+    const count = state.templates.filter(t => t.trainingPlanId === p.id).length;
+    h += `<button class="template-btn" onclick="selectPlan('${p.id}')">
+      <div class="name">${esc(p.name)}</div>
+      <div class="meta">${count} workout${count === 1 ? "" : "s"}</div>
+    </button>`;
+  });
+  h += `<button class="create-btn" onclick="createPlan()">+ Create New Training Plan</button></div>`;
+  return h;
+}
+
+function selectPlan(id) {
+  if (!state.trainingPlans.some(p => p.id === id)) return;
+  state.currentPlanId = id;
+  saveDataSync();
+  go("home");
+}
+
+function createPlan() {
+  const name = prompt("Training plan name:");
+  if (!name || !name.trim()) return;
+  const plan = { id: uid(), name: name.trim() };
+  state.trainingPlans.push(plan);
+  state.currentPlanId = plan.id;
+  saveDataSync();
+  go("home");
+}
+
+function currentPlan() {
+  return state.trainingPlans.find(p => p.id === state.currentPlanId) || null;
+}
+
 function renderHome() {
-  let h = `<div class="section"><div class="section-title">Choose Workout</div>`;
-  state.templates.forEach(t => {
+  const plan = currentPlan();
+  const planName = plan ? plan.name : "Workouts";
+  const workouts = state.templates.filter(t => t.trainingPlanId === state.currentPlanId);
+  let h = `<div class="section">
+    <button class="link-btn" onclick="go('plans')" style="margin-bottom:12px">← Plans</button>
+    <div class="section-title">${esc(planName)}</div>`;
+  workouts.forEach(t => {
     const totalSets = t.exercises.reduce((a,e) => a + e.sets, 0);
     h += `<button class="template-btn" onclick="startWorkout('${t.id}')">
       <div class="name">${esc(t.name)}</div>
       <div class="meta">${t.exercises.length} exercises · ${totalSets} sets</div>
     </button>`;
   });
+  if (workouts.length === 0) {
+    h += `<p style="color:var(--text3);font-size:14px;margin:8px 0 12px">No workouts in this plan yet.</p>`;
+  }
   h += `<button class="create-btn" onclick="go('newWorkout')">+ Create New Workout</button></div>`;
   return h;
 }
@@ -384,7 +480,7 @@ function startWorkout(id) {
 
 function buildSetsWithLast(ex) {
   const sets = initSetsData(ex);
-  const last = getLastPerformanceSets(ex.name);
+  const last = getLastPerformanceSets(ex.exerciseId);
   if (last && last.length > 0) {
     sets.forEach((s, i) => {
       const src = last[Math.min(i, last.length - 1)];
@@ -414,6 +510,7 @@ function renderWorkout() {
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
     </div>`;
 
+  const lastIdx = w.exercises.length - 1;
   w.exercises.forEach((ex, exIdx) => {
     const sets = state.setsMap[ex.name] || [];
     const allDone = sets.length > 0 && sets.every(s => s.completed);
@@ -423,10 +520,14 @@ function renderWorkout() {
           <h3 class="${allDone ? 'done' : ''}">${esc(ex.name)}</h3>
           <span class="spec">${ex.sets}×${esc(ex.reps)}</span>
         </div>
-        <button class="swap-btn" onclick="openSwapPicker(${exIdx})">⇄ Swap</button>
+        <div class="ex-ctrls">
+          <button class="ex-ctrl-btn" onclick="moveExercise(${exIdx},-1)" ${exIdx === 0 ? 'disabled' : ''} aria-label="Move up">↑</button>
+          <button class="ex-ctrl-btn" onclick="moveExercise(${exIdx},1)" ${exIdx === lastIdx ? 'disabled' : ''} aria-label="Move down">↓</button>
+          <button class="ex-ctrl-btn remove" onclick="removeFromWorkout(${exIdx})" aria-label="Remove">×</button>
+        </div>
       </div>`;
 
-    const lastSets = getLastPerformanceSets(ex.name);
+    const lastSets = getLastPerformanceSets(ex.exerciseId);
     if (lastSets && lastSets.length > 0) {
       const chips = lastSets.map(s => `<span class="last-set">${esc(String(s.weight||"—"))}×${esc(String(s.reps))}</span>`).join('<span class="last-sep">·</span>');
       h += `<div class="last-hint"><span class="last-label">Last time</span>${chips}</div>`;
@@ -454,6 +555,7 @@ function renderWorkout() {
   });
 
   const canFinish = completed > 0;
+  h += `<button class="add-exercise-btn" onclick="openAddExercisePicker()">+ Add Exercise</button>`;
   h += `<button class="primary-btn finish-btn" ${canFinish ? '' : 'disabled'} onclick="finishWorkout()">Finish Workout</button></div>`;
   return h;
 }
@@ -500,7 +602,7 @@ function finishWorkout() {
   const log = {
     id: uid(), date: todayStr(), workoutName: w.name,
     exercises: w.exercises.map(ex => ({
-      name: ex.name, targetSets: ex.sets, targetReps: ex.reps,
+      name: ex.name, exerciseId: ex.exerciseId, targetSets: ex.sets, targetReps: ex.reps,
       sets: (state.setsMap[ex.name] || []).map(s => ({...s}))
     }))
   };
@@ -562,7 +664,7 @@ function editTemplate(id) {
   const t = state.templates.find(x => x.id === id);
   if (!t) return;
   editTemplateId = id;
-  newExercises = t.exercises.map(e => ({ id: uid(), name: e.name, sets: e.sets, reps: e.reps }));
+  newExercises = t.exercises.map(e => ({ id: uid(), exerciseId: e.exerciseId, name: e.name, sets: e.sets, reps: e.reps }));
   state.view = "newWorkout";
   render();
 }
@@ -573,7 +675,10 @@ function saveNewWorkout() {
   if (!name) return;
   const valid = newExercises.filter(e => e.name.trim());
   if (valid.length === 0) return;
-  const exercises = valid.map(e => ({ name: e.name.trim(), sets: parseInt(e.sets)||3, reps: e.reps||"10" }));
+  const exercises = valid.map(e => {
+    const nm = e.name.trim();
+    return { name: nm, exerciseId: e.exerciseId || resolveExerciseId(nm), sets: parseInt(e.sets)||3, reps: e.reps||"10" };
+  });
 
   if (editTemplateId !== null) {
     const t = state.templates.find(x => x.id === editTemplateId);
@@ -585,7 +690,7 @@ function saveNewWorkout() {
     return;
   }
 
-  const template = { id: uid(), name, exercises };
+  const template = { id: uid(), trainingPlanId: state.currentPlanId, name, exercises };
   state.templates.push(template);
   saveDataSync();
   newExercises = [];
@@ -609,7 +714,8 @@ function renderHistory() {
         <span class="date">${esc(log.date)}</span></div>`;
       log.exercises.forEach(ex => {
         const done = ex.sets.filter(s => s.completed).map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ");
-        h += `<button class="ex-name" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;padding:0;text-align:left;text-decoration:underline;text-decoration-color:var(--text4)" onclick="showExerciseHistory('${esc(ex.name)}')">${esc(ex.name)}</button><div class="ex-sets">${esc(done)}</div>`;
+        const exKey = ex.exerciseId || "";
+        h += `<button class="ex-name" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;padding:0;text-align:left;text-decoration:underline;text-decoration-color:var(--text4)" onclick="showExerciseHistory('${esc(exKey)}','${esc(ex.name)}')">${esc(ex.name)}</button><div class="ex-sets">${esc(done)}</div>`;
       });
       h += `<div class="card-actions">
         <button class="edit-btn" onclick="editLog('${log.id}')">Edit</button>
@@ -628,6 +734,7 @@ function exportJSON() {
       date: log.date, workout: log.workoutName,
       exercises: log.exercises.map(ex => ({
         name: ex.name,
+        exerciseId: ex.exerciseId,
         target: { sets: ex.targetSets, reps: ex.targetReps },
         completed: ex.sets.filter(s => s.completed).map(s => ({
           set: s.setNum, weight_kg: parseFloat(s.weight) || null, reps: s.reps
@@ -665,10 +772,12 @@ function exportJSON() {
 }
 
 function renderTemplates() {
+  const plan = currentPlan();
+  const planName = plan ? plan.name : "";
   let h = `<div class="section">
     <button class="link-btn" onclick="go('home')" style="margin-bottom:16px">← Back</button>
-    <div class="section-title">Manage Templates</div>`;
-  state.templates.forEach(t => {
+    <div class="section-title">Manage Templates${planName ? " · " + esc(planName) : ""}</div>`;
+  state.templates.filter(t => t.trainingPlanId === state.currentPlanId).forEach(t => {
     h += `<div class="template-manage-card">
       <div class="info">
         <div class="name">${esc(t.name)}</div>
@@ -737,6 +846,7 @@ function importJSON(file) {
           workoutName: w.workout,
           exercises: w.exercises.map(ex => ({
             name: ex.name,
+            exerciseId: ex.exerciseId || resolveExerciseId(ex.name),
             targetSets: ex.target.sets,
             targetReps: String(ex.target.reps),
             sets: ex.completed.map(s => ({
@@ -766,13 +876,10 @@ function importJSON(file) {
   reader.readAsText(file);
 }
 
-function getLastPerformance(exName) {
-  const sets = getLastPerformanceSets(exName);
-  return sets ? sets.map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ") : null;
-}
-function getLastPerformanceSets(exName) {
+function getLastPerformanceSets(exerciseId) {
+  if (!exerciseId) return null;
   for (let i = state.logs.length - 1; i >= 0; i--) {
-    const ex = state.logs[i].exercises.find(e => e.name === exName);
+    const ex = state.logs[i].exercises.find(e => e.exerciseId === exerciseId);
     if (ex) {
       const done = ex.sets.filter(s => s.completed);
       if (done.length > 0) return done;
@@ -781,50 +888,75 @@ function getLastPerformanceSets(exName) {
   return null;
 }
 
-function openSwapPicker(exIdx) {
-  const current = state.currentWorkout.exercises[exIdx];
-  const seen = new Map();
-  const addName = n => { if (n && !seen.has(n)) seen.set(n, null); };
-  state.logs.forEach(l => l.exercises.forEach(e => {
-    if (!seen.has(e.name)) {
-      const done = e.sets.filter(s => s.completed);
-      const summary = done.length ? done.map(s => `${s.weight||"—"}×${s.reps}`).join(" · ") : "";
-      seen.set(e.name, summary);
-    }
-  }));
-  state.templates.forEach(t => t.exercises.forEach(e => addName(e.name)));
-  state.currentWorkout.exercises.forEach(e => seen.delete(e.name));
-  const names = [...seen.keys()].sort((a, b) => a.localeCompare(b));
+function removeFromWorkout(exIdx) {
+  const w = state.currentWorkout;
+  if (!w || !w.exercises[exIdx]) return;
+  const ex = w.exercises[exIdx];
+  showModal(`Remove "${ex.name}" from this workout?`, () => {
+    w.exercises.splice(exIdx, 1);
+    delete state.setsMap[ex.name];
+    render();
+  }, "Remove");
+}
+
+function moveExercise(exIdx, dir) {
+  const w = state.currentWorkout;
+  if (!w) return;
+  const arr = w.exercises;
+  const newIdx = exIdx + dir;
+  if (newIdx < 0 || newIdx >= arr.length) return;
+  [arr[exIdx], arr[newIdx]] = [arr[newIdx], arr[exIdx]];
+  render();
+}
+
+function openAddExercisePicker() {
+  const inWorkout = new Set(state.currentWorkout.exercises.map(e => e.exerciseId).filter(Boolean));
+  const items = state.exercises
+    .filter(e => !inWorkout.has(e.id))
+    .map(e => {
+      const sets = getLastPerformanceSets(e.id);
+      const summary = sets ? sets.map(s => `${s.weight||"—"}×${s.reps}`).join(" · ") : "";
+      return { id: e.id, name: e.name, summary };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const overlay = document.createElement("div");
   overlay.className = "swap-picker";
   overlay.innerHTML = `
     <div class="swap-picker-box">
       <div class="swap-picker-head">
-        <h3>Swap "${esc(current.name)}"</h3>
-        <button class="swap-picker-close" id="swap-close" aria-label="Close">×</button>
+        <h3>Add Exercise</h3>
+        <button class="swap-picker-close" id="add-close" aria-label="Close">×</button>
       </div>
-      <input type="text" class="swap-picker-search" id="swap-search"
+      <input type="text" class="swap-picker-search" id="add-search"
         placeholder="Search or type a new exercise..." autocomplete="off" autocapitalize="words">
-      <div class="swap-picker-list" id="swap-list">
-        ${names.length === 0
-          ? `<div class="swap-picker-empty">No previous exercises. Type a name above.</div>`
-          : names.map(n => `<button class="swap-picker-item" data-name="${esc(n)}">
-              <span>${esc(n)}</span>
-              ${seen.get(n) ? `<span class="item-meta">${esc(seen.get(n))}</span>` : ''}
+      <div class="swap-picker-list" id="add-list">
+        ${items.length === 0
+          ? `<div class="swap-picker-empty">No exercises yet. Type a name above.</div>`
+          : items.map(it => `<button class="swap-picker-item" data-id="${esc(it.id)}" data-name="${esc(it.name)}">
+              <span>${esc(it.name)}</span>
+              ${it.summary ? `<span class="item-meta">${esc(it.summary)}</span>` : ''}
             </button>`).join('')}
       </div>
-      <button class="primary-btn" id="swap-confirm">Use Typed Name</button>
+      <div class="add-ex-fields">
+        <div><label>Sets</label><input type="number" inputmode="numeric" id="add-sets" value="3"></div>
+        <div><label>Reps</label><input type="text" id="add-reps" value="8-10"></div>
+      </div>
+      <button class="primary-btn" id="add-confirm" disabled>Add</button>
     </div>`;
   document.body.appendChild(overlay);
 
-  const search = document.getElementById('swap-search');
-  const list = document.getElementById('swap-list');
-  const confirmBtn = document.getElementById('swap-confirm');
+  const search = document.getElementById('add-search');
+  const list = document.getElementById('add-list');
+  const setsInput = document.getElementById('add-sets');
+  const repsInput = document.getElementById('add-reps');
+  const confirmBtn = document.getElementById('add-confirm');
+  let selectedId = null;
+
   const updateConfirm = () => { confirmBtn.disabled = !search.value.trim(); };
-  updateConfirm();
   search.addEventListener('input', () => {
     const q = search.value.toLowerCase().trim();
+    selectedId = null;
     Array.from(list.children).forEach(btn => {
       if (!btn.dataset || !btn.dataset.name) return;
       btn.style.display = btn.dataset.name.toLowerCase().includes(q) ? '' : 'none';
@@ -834,41 +966,49 @@ function openSwapPicker(exIdx) {
   list.addEventListener('click', e => {
     const btn = e.target.closest('.swap-picker-item');
     if (!btn) return;
-    performSwap(exIdx, btn.dataset.name);
-    overlay.remove();
+    search.value = btn.dataset.name;
+    selectedId = btn.dataset.id;
+    updateConfirm();
   });
-  document.getElementById('swap-close').onclick = () => overlay.remove();
+  document.getElementById('add-close').onclick = () => overlay.remove();
   confirmBtn.onclick = () => {
-    const newName = search.value.trim();
-    if (!newName) return;
-    performSwap(exIdx, newName);
+    const name = search.value.trim();
+    if (!name) return;
+    const sets = parseInt(setsInput.value) || 3;
+    const reps = (repsInput.value || "").trim() || "8-10";
+    addExerciseToWorkout(name, sets, reps, selectedId);
     overlay.remove();
   };
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
-function performSwap(exIdx, newName) {
-  const ex = state.currentWorkout.exercises[exIdx];
-  const oldName = ex.name;
-  if (!newName || oldName === newName) return;
-  if (state.setsMap[newName]) {
-    const suffix = " (2)";
-    newName = newName + suffix;
-  }
-  ex.name = newName;
-  delete state.setsMap[oldName];
-  state.setsMap[newName] = buildSetsWithLast(ex);
+function addExerciseToWorkout(name, sets, reps, exerciseId) {
+  const w = state.currentWorkout;
+  if (!w) return;
+  let finalName = name;
+  while (state.setsMap[finalName]) finalName += " (2)";
+  const ex = {
+    name: finalName,
+    exerciseId: exerciseId || resolveExerciseId(name),
+    sets: Math.max(1, parseInt(sets) || 3),
+    reps: reps || "8-10"
+  };
+  w.exercises.push(ex);
+  state.setsMap[finalName] = buildSetsWithLast(ex);
   render();
 }
 
-function showExerciseHistory(exName) {
+function showExerciseHistory(exerciseId, exName) {
+  state.exerciseHistoryId = exerciseId;
   state.exerciseHistoryName = exName;
   state.view = "exerciseHistory";
   render();
 }
 
 function renderExerciseHistory() {
-  const name = state.exerciseHistoryName;
+  const id = state.exerciseHistoryId;
+  const rec = id ? state.exercises.find(e => e.id === id) : null;
+  const name = (rec && rec.name) || state.exerciseHistoryName || "Exercise";
   let h = `<div class="section">
     <button class="link-btn" onclick="go('history')" style="margin-bottom:16px">← Back</button>
     <div class="section-title">${esc(name)} History</div>
@@ -876,7 +1016,7 @@ function renderExerciseHistory() {
 
   let found = false;
   [...state.logs].reverse().forEach(log => {
-    const ex = log.exercises.find(e => e.name === name);
+    const ex = log.exercises.find(e => id ? e.exerciseId === id : e.name === name);
     if (!ex) return;
     const done = ex.sets.filter(s => s.completed);
     if (done.length === 0) return;
@@ -963,10 +1103,43 @@ function deleteLog(logId) {
   if (data) {
     if (data.templates) state.templates = data.templates;
     if (data.logs) state.logs = data.logs;
+    if (data.exercises) state.exercises = data.exercises;
+    if (data.trainingPlans && data.trainingPlans.length) state.trainingPlans = data.trainingPlans;
+    if (data.currentPlanId) state.currentPlanId = data.currentPlanId;
   }
+  state.exercises.forEach(e => { if (!e.aliases) e.aliases = []; });
+
+  if (!state.trainingPlans.some(p => p.id === DEFAULT_PLAN_ID)) {
+    state.trainingPlans.unshift({ id: DEFAULT_PLAN_ID, name: "Training Plan 1" });
+  }
+  state.templates.forEach(t => {
+    if (!t.trainingPlanId) t.trainingPlanId = DEFAULT_PLAN_ID;
+  });
+
   state.templates.forEach(t => t.exercises.forEach(e => {
     if (e.name === "Mach. LH Press") e.name = "1 Arm LM Press";
   }));
+
+  const seededId = resolveExerciseId("1 Arm LM Press");
+  const seededRec = state.exercises.find(e => e.id === seededId);
+  if (seededRec && !seededRec.aliases.includes("Mach. LH Press")) {
+    seededRec.aliases.push("Mach. LH Press");
+  }
+
+  state.templates.forEach(t => t.exercises.forEach(e => {
+    if (!e.exerciseId) e.exerciseId = resolveExerciseId(e.name);
+  }));
+  state.logs.forEach(l => l.exercises.forEach(e => {
+    if (!e.exerciseId) e.exerciseId = resolveExerciseId(e.name);
+  }));
+
+  if (state.currentPlanId && state.trainingPlans.some(p => p.id === state.currentPlanId)) {
+    state.view = "home";
+  } else {
+    state.currentPlanId = null;
+    state.view = "plans";
+  }
+
   saveDataSync();
   render();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
