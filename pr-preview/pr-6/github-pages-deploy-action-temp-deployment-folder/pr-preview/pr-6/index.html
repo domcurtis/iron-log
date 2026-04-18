@@ -55,6 +55,20 @@
     color: var(--text); text-align: left; cursor: pointer;
   }
   .template-btn:active { border-color: #333; }
+  .workout-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .workout-row .template-btn { margin-bottom: 0; flex: 1; }
+  .workout-edit-btn {
+    background: transparent; border: 1px solid var(--border2); color: var(--text4);
+    width: 40px; border-radius: 12px; font-size: 16px; flex-shrink: 0;
+  }
+  .workout-edit-btn:active { border-color: var(--text3); color: var(--text2); }
+  .edit-menu-actions { display: flex; flex-direction: column; gap: 8px; }
+  .edit-menu-btn {
+    padding: 14px; border: none; border-radius: 8px; background: #1a1a1a; color: var(--text);
+    font-size: 15px; font-family: var(--font); cursor: pointer;
+  }
+  .edit-menu-btn.danger { color: var(--red); }
+  .edit-menu-btn.cancel { background: #111; color: var(--text3); }
   .template-btn .name { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
   .template-btn .meta { font-size: 12px; color: var(--text3); }
   .create-btn {
@@ -169,14 +183,6 @@
   .ex-history-card .ex-h-date { color: var(--text3); }
   .ex-history-card .ex-h-data { color: var(--text2); }
 
-  .template-manage-card {
-    background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px;
-    border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
-  }
-  .template-manage-card .info .name { font-size: 16px; font-weight: 600; }
-  .template-manage-card .info .exercises { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .delete-btn { background: none; border: none; color: var(--red); font-size: 20px; padding: 4px 8px; }
-
   .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.8); display: flex; align-items: center;
@@ -228,13 +234,6 @@
   .swap-picker-item:active { border-color: var(--green); }
   .swap-picker-item .item-meta { font-size: 11px; color: var(--text3); font-family: var(--mono); flex-shrink: 0; }
   .swap-picker-empty { color: var(--text3); font-size: 13px; text-align: center; padding: 20px; }
-
-  .edit-template-btn {
-    background: none; border: 1px solid var(--input-border); border-radius: 6px;
-    padding: 6px 12px; color: var(--text2); font-size: 12px; font-family: var(--mono);
-    margin-right: 4px;
-  }
-  .edit-template-btn:active { border-color: var(--green); color: var(--green); }
 
   .hidden { display: none !important; }
 </style>
@@ -376,7 +375,7 @@ function render() {
     db.classList.add("hidden");
     app.innerHTML = renderPlans();
   } else if (state.view === "home") {
-    ha.innerHTML = `<button onclick="go('templates')">Templates</button><button onclick="go('import')">Import</button><button onclick="go('history')">History</button>`;
+    ha.innerHTML = `<button onclick="go('import')">Import</button><button onclick="go('history')">History</button>`;
     db.textContent = new Date().toLocaleDateString("en-US", { weekday:"long", month:"short", day:"numeric" });
     db.classList.remove("hidden");
     app.innerHTML = renderHome();
@@ -392,10 +391,6 @@ function render() {
     ha.innerHTML = "";
     db.classList.add("hidden");
     app.innerHTML = renderHistory();
-  } else if (state.view === "templates") {
-    ha.innerHTML = "";
-    db.classList.add("hidden");
-    app.innerHTML = renderTemplates();
   } else if (state.view === "import") {
     ha.innerHTML = "";
     db.classList.add("hidden");
@@ -456,10 +451,13 @@ function renderHome() {
     <div class="section-title">${esc(planName)}</div>`;
   workouts.forEach(t => {
     const totalSets = t.exercises.reduce((a,e) => a + e.sets, 0);
-    h += `<button class="template-btn" onclick="startWorkout('${t.id}')">
-      <div class="name">${esc(t.name)}</div>
-      <div class="meta">${t.exercises.length} exercises · ${totalSets} sets</div>
-    </button>`;
+    h += `<div class="workout-row">
+      <button class="template-btn" onclick="startWorkout('${t.id}')">
+        <div class="name">${esc(t.name)}</div>
+        <div class="meta">${t.exercises.length} exercises · ${totalSets} sets</div>
+      </button>
+      <button class="workout-edit-btn" onclick="editWorkout('${t.id}')" aria-label="Edit workout">✎</button>
+    </div>`;
   });
   if (workouts.length === 0) {
     h += `<p style="color:var(--text3);font-size:14px;margin:8px 0 12px">No workouts in this plan yet.</p>`;
@@ -471,7 +469,7 @@ function renderHome() {
 function startWorkout(id) {
   const t = state.templates.find(x => x.id === id);
   if (!t) return;
-  state.currentWorkout = JSON.parse(JSON.stringify(t));
+  state.currentWorkout = t;
   state.setsMap = {};
   t.exercises.forEach(ex => { state.setsMap[ex.name] = buildSetsWithLast(ex); });
   state.view = "workout";
@@ -615,20 +613,14 @@ function finishWorkout() {
 }
 
 let newExercises = [];
-let editTemplateId = null;
 function renderNewWorkout() {
   if (newExercises.length === 0) newExercises = [{ id: uid(), name:"", sets:3, reps:"10" }];
-  const editing = editTemplateId !== null;
-  const existing = editing ? state.templates.find(t => t.id === editTemplateId) : null;
-  const titleText = editing ? "Edit Workout" : "New Workout";
-  const saveText = editing ? "Save Changes" : "Save & Start Workout";
-  const nameValue = editing && existing ? esc(existing.name) : "";
   let h = `<div class="section">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h2 style="font-size:18px;font-weight:600">${titleText}</h2>
+      <h2 style="font-size:18px;font-weight:600">New Workout</h2>
       <button class="cancel-link-sm" onclick="cancelNewWorkout()">Cancel</button>
     </div>
-    <input type="text" id="new-workout-name" placeholder="Workout name" style="font-size:17px;text-align:left;margin-bottom:16px" value="${nameValue}">`;
+    <input type="text" id="new-workout-name" placeholder="Workout name" style="font-size:17px;text-align:left;margin-bottom:16px" value="">`;
 
   newExercises.forEach((ex, i) => {
     h += `<div class="form-exercise">
@@ -647,7 +639,7 @@ function renderNewWorkout() {
   });
 
   h += `<button class="add-exercise-btn" onclick="addNewEx()">+ Add Exercise</button>
-    <button class="primary-btn" onclick="saveNewWorkout()">${saveText}</button></div>`;
+    <button class="primary-btn" onclick="saveNewWorkout()">Save & Start Workout</button></div>`;
   return h;
 }
 
@@ -655,18 +647,7 @@ function addNewEx() { newExercises.push({ id: uid(), name:"", sets:3, reps:"10" 
 function removeNewEx(i) { newExercises.splice(i, 1); render(); }
 function cancelNewWorkout() {
   newExercises = [];
-  const wasEditing = editTemplateId !== null;
-  editTemplateId = null;
-  go(wasEditing ? "templates" : "home");
-}
-
-function editTemplate(id) {
-  const t = state.templates.find(x => x.id === id);
-  if (!t) return;
-  editTemplateId = id;
-  newExercises = t.exercises.map(e => ({ id: uid(), exerciseId: e.exerciseId, name: e.name, sets: e.sets, reps: e.reps }));
-  state.view = "newWorkout";
-  render();
+  go("home");
 }
 
 function saveNewWorkout() {
@@ -679,22 +660,54 @@ function saveNewWorkout() {
     const nm = e.name.trim();
     return { name: nm, exerciseId: e.exerciseId || resolveExerciseId(nm), sets: parseInt(e.sets)||3, reps: e.reps||"10" };
   });
-
-  if (editTemplateId !== null) {
-    const t = state.templates.find(x => x.id === editTemplateId);
-    if (t) { t.name = name; t.exercises = exercises; }
-    saveDataSync();
-    newExercises = [];
-    editTemplateId = null;
-    go("templates");
-    return;
-  }
-
   const template = { id: uid(), trainingPlanId: state.currentPlanId, name, exercises };
   state.templates.push(template);
   saveDataSync();
   newExercises = [];
   startWorkout(template.id);
+}
+
+function deleteWorkout(id) {
+  const t = state.templates.find(x => x.id === id);
+  if (!t) return;
+  showModal(`Delete "${t.name}"? This cannot be undone.`, () => {
+    state.templates = state.templates.filter(x => x.id !== id);
+    saveDataSync();
+    render();
+  });
+}
+
+function editWorkout(id) {
+  const t = state.templates.find(x => x.id === id);
+  if (!t) return;
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <p>${esc(t.name)}</p>
+      <div class="edit-menu-actions">
+        <button class="edit-menu-btn" id="em-rename">Rename</button>
+        <button class="edit-menu-btn danger" id="em-delete">Delete</button>
+        <button class="edit-menu-btn cancel" id="em-cancel">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  document.getElementById("em-rename").onclick = () => {
+    close();
+    const newName = prompt("New workout name:", t.name);
+    if (newName && newName.trim() && newName.trim() !== t.name) {
+      t.name = newName.trim();
+      saveDataSync();
+      render();
+    }
+  };
+  document.getElementById("em-delete").onclick = () => {
+    close();
+    deleteWorkout(id);
+  };
+  document.getElementById("em-cancel").onclick = close;
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
 }
 
 function renderHistory() {
@@ -769,37 +782,6 @@ function exportJSON() {
     }
   };
   document.getElementById("export-close").onclick = () => overlay.remove();
-}
-
-function renderTemplates() {
-  const plan = currentPlan();
-  const planName = plan ? plan.name : "";
-  let h = `<div class="section">
-    <button class="link-btn" onclick="go('home')" style="margin-bottom:16px">← Back</button>
-    <div class="section-title">Manage Templates${planName ? " · " + esc(planName) : ""}</div>`;
-  state.templates.filter(t => t.trainingPlanId === state.currentPlanId).forEach(t => {
-    h += `<div class="template-manage-card">
-      <div class="info">
-        <div class="name">${esc(t.name)}</div>
-        <div class="exercises">${t.exercises.map(e => esc(e.name)).join(", ")}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:4px">
-        <button class="edit-template-btn" onclick="editTemplate('${t.id}')">Edit</button>
-        <button class="delete-btn" onclick="deleteTemplate('${t.id}')">×</button>
-      </div>
-    </div>`;
-  });
-  h += `</div>`;
-  return h;
-}
-
-function deleteTemplate(id) {
-  const t = state.templates.find(x => x.id === id);
-  showModal(`Delete "${t ? t.name : 'template'}"? This cannot be undone.`, () => {
-    state.templates = state.templates.filter(t => t.id !== id);
-    saveDataSync();
-    render();
-  });
 }
 
 function renderImport() {
@@ -895,6 +877,7 @@ function removeFromWorkout(exIdx) {
   showModal(`Remove "${ex.name}" from this workout?`, () => {
     w.exercises.splice(exIdx, 1);
     delete state.setsMap[ex.name];
+    saveDataSync();
     render();
   }, "Remove");
 }
@@ -906,6 +889,7 @@ function moveExercise(exIdx, dir) {
   const newIdx = exIdx + dir;
   if (newIdx < 0 || newIdx >= arr.length) return;
   [arr[exIdx], arr[newIdx]] = [arr[newIdx], arr[exIdx]];
+  saveDataSync();
   render();
 }
 
@@ -995,6 +979,7 @@ function addExerciseToWorkout(name, sets, reps, exerciseId) {
   };
   w.exercises.push(ex);
   state.setsMap[finalName] = buildSetsWithLast(ex);
+  saveDataSync();
   render();
 }
 
