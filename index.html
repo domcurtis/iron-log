@@ -24,21 +24,29 @@
   }
   input[type="number"], input[type="text"] {
     background: var(--input-bg); border: 1px solid var(--input-border);
-    border-radius: 6px; padding: 10px 8px; color: var(--text); font-size: 15px;
+    border-radius: 8px; padding: 14px 10px; color: var(--text); font-size: 16px;
     font-family: var(--mono); text-align: center; outline: none; width: 100%;
+    -webkit-appearance: none; appearance: none; min-height: 48px;
   }
-  input[type="number"]:focus, input[type="text"]:focus { border-color: #333; }
-  button { font-family: var(--font); cursor: pointer; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]:focus, input[type="text"]:focus { border-color: var(--green); background: #151515; }
+  input.prefilled { color: var(--text3); }
+  button { font-family: var(--font); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
-  /* ─── Header ─── */
   .header { padding: 20px 20px 0; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   .header h1 span { color: var(--green); }
-  .header-actions { display: flex; gap: 12px; }
-  .header-actions button { background: none; border: none; color: var(--text3); font-size: 13px; }
+  .header-actions { display: flex; gap: 8px; }
+  .header-actions button {
+    background: var(--card); border: 1px solid var(--border2); color: var(--text);
+    font-size: 14px; font-weight: 500; padding: 8px 12px; border-radius: 8px;
+    min-height: 38px;
+  }
+  .header-actions button:active { border-color: var(--green); color: var(--green); }
   .date-bar { padding: 8px 20px 0; font-size: 12px; color: var(--text4); font-family: var(--mono); }
 
-  /* ─── Template selector ─── */
   .section { padding: 20px; }
   .section-title { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); margin-bottom: 16px; }
   .template-btn {
@@ -47,6 +55,20 @@
     color: var(--text); text-align: left; cursor: pointer;
   }
   .template-btn:active { border-color: #333; }
+  .workout-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .workout-row .template-btn { margin-bottom: 0; flex: 1; }
+  .workout-edit-btn {
+    background: transparent; border: 1px solid var(--border2); color: var(--text4);
+    width: 40px; border-radius: 12px; font-size: 16px; flex-shrink: 0;
+  }
+  .workout-edit-btn:active { border-color: var(--text3); color: var(--text2); }
+  .edit-menu-actions { display: flex; flex-direction: column; gap: 8px; }
+  .edit-menu-btn {
+    padding: 14px; border: none; border-radius: 8px; background: #1a1a1a; color: var(--text);
+    font-size: 15px; font-family: var(--font); cursor: pointer;
+  }
+  .edit-menu-btn.danger { color: var(--red); }
+  .edit-menu-btn.cancel { background: #111; color: var(--text3); }
   .template-btn .name { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
   .template-btn .meta { font-size: 12px; color: var(--text3); }
   .create-btn {
@@ -55,43 +77,54 @@
     color: var(--green); font-size: 15px;
   }
 
-  /* ─── Exercise card ─── */
   .exercise-card {
     background: var(--card); border-radius: 12px; padding: 16px;
     margin-bottom: 12px; border: 1px solid var(--border);
   }
   .exercise-card.all-done { border-color: rgba(34,197,94,0.2); }
-  .exercise-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .exercise-header h3 { font-size: 16px; font-weight: 600; }
+  .exercise-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .exercise-header .title-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .exercise-header h3 { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .exercise-header h3.done { color: var(--green); }
   .exercise-header .spec { font-size: 12px; color: var(--text3); font-family: var(--mono); }
-  .col-labels { display: flex; gap: 8px; padding: 4px 0 4px 28px; margin-bottom: 2px; }
+  .ex-ctrls { display: flex; gap: 4px; flex-shrink: 0; }
+  .ex-ctrl-btn {
+    background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text2);
+    width: 34px; height: 34px; border-radius: 8px; font-size: 16px; font-family: var(--mono);
+    display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .ex-ctrl-btn:disabled { opacity: 0.25; }
+  .ex-ctrl-btn:not(:disabled):active { border-color: var(--green); color: var(--green); }
+  .ex-ctrl-btn.remove:active { border-color: var(--red); color: var(--red); }
+
+  .add-ex-fields { display: flex; gap: 8px; }
+  .add-ex-fields > div { flex: 1; }
+  .add-ex-fields label { display: block; font-size: 10px; color: var(--text4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .col-labels { display: flex; gap: 8px; padding: 4px 0 4px 32px; margin-bottom: 2px; }
   .col-labels span { font-size: 10px; color: var(--text4); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
   .col-labels .w { flex: 1; }
-  .col-labels .r { width: 56px; }
-  .col-labels .c { width: 36px; }
+  .col-labels .r { width: 72px; }
+  .col-labels .c { width: 48px; }
 
-  /* ─── Set row ─── */
   .set-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border2); }
   .set-row.completed { opacity: 0.5; }
-  .set-num { width: 28px; font-size: 12px; color: var(--text3); font-family: var(--mono); text-align: center; flex-shrink: 0; }
+  .set-num { width: 32px; font-size: 13px; color: var(--text3); font-family: var(--mono); text-align: center; flex-shrink: 0; font-weight: 600; }
   .set-row .weight-input { flex: 1; }
-  .set-row .reps-input { width: 56px; flex-shrink: 0; }
+  .set-row .reps-input { width: 72px; flex-shrink: 0; }
   .check-btn {
-    width: 36px; height: 36px; border-radius: 8px; border: none;
-    background: var(--border2); color: var(--text4); font-size: 18px;
+    width: 48px; height: 48px; border-radius: 10px; border: none;
+    background: var(--border2); color: var(--text4); font-size: 22px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    transition: all 0.15s;
+    transition: all 0.15s; -webkit-tap-highlight-color: transparent;
   }
   .check-btn.done { background: var(--green); color: #000; }
+  .check-btn:active { transform: scale(0.92); }
 
-  /* ─── Progress bar ─── */
   .progress-wrap { margin: 12px 0 20px; }
   .progress-labels { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; color: var(--text4); font-family: var(--mono); }
   .progress-track { height: 3px; background: var(--border2); border-radius: 2px; }
   .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s ease; }
 
-  /* ─── Buttons ─── */
   .primary-btn {
     width: 100%; padding: 14px; background: var(--green); border: none; border-radius: 10px;
     color: #000; font-size: 16px; font-weight: 700;
@@ -102,7 +135,6 @@
   .cancel-link { background: none; border: none; color: var(--text3); font-size: 13px; }
   .cancel-link-sm { background: none; border: none; color: var(--text3); font-size: 14px; }
 
-  /* ─── New workout form ─── */
   .form-exercise {
     background: var(--card); border-radius: 10px; padding: 12px;
     margin-bottom: 8px; border: 1px solid var(--border);
@@ -118,12 +150,13 @@
     border-radius: 8px; color: var(--green); font-size: 14px; margin-top: 4px; margin-bottom: 16px;
   }
 
-  /* ─── History ─── */
   .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .export-btn {
-    background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px;
-    padding: 8px 14px; color: var(--green); font-size: 13px; font-family: var(--mono);
+    background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px;
+    padding: 12px 18px; color: var(--green); font-size: 15px; font-weight: 600; font-family: var(--mono);
+    min-height: 44px;
   }
+  .export-btn:active { border-color: var(--green); }
   .log-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
   .log-card .top { display: flex; justify-content: space-between; margin-bottom: 8px; }
   .log-card .top .name { font-size: 16px; font-weight: 600; }
@@ -134,26 +167,22 @@
   .log-card .edit-btn { background: none; border: 1px solid var(--input-border); border-radius: 6px; padding: 6px 14px; color: var(--text2); font-size: 12px; font-family: var(--mono); cursor: pointer; }
   .log-card .delete-log-btn { background: none; border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; padding: 6px 14px; color: var(--red); font-size: 12px; font-family: var(--mono); cursor: pointer; }
 
-  /* ─── Last time hint ─── */
-  .last-hint { font-size: 11px; color: var(--text4); font-family: var(--mono); margin-bottom: 6px; }
+  .last-hint {
+    font-size: 13px; color: var(--text); font-family: var(--mono);
+    margin: 4px 0 10px; padding: 10px 12px;
+    background: rgba(34,197,94,0.06); border-left: 3px solid rgba(34,197,94,0.5); border-radius: 6px;
+    display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center;
+  }
+  .last-hint .last-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--font); font-weight: 600; }
+  .last-hint .last-set { color: var(--text); font-weight: 500; }
+  .last-hint .last-sep { color: var(--text4); }
 
-  /* ─── Exercise history ─── */
   .ex-history-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
   .ex-history-card .ex-h-name { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
   .ex-history-card .ex-h-row { display: flex; justify-content: space-between; font-size: 12px; font-family: var(--mono); padding: 4px 0; border-bottom: 1px solid var(--border); }
   .ex-history-card .ex-h-date { color: var(--text3); }
   .ex-history-card .ex-h-data { color: var(--text2); }
 
-  /* ─── Templates manage ─── */
-  .template-manage-card {
-    background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px;
-    border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
-  }
-  .template-manage-card .info .name { font-size: 16px; font-weight: 600; }
-  .template-manage-card .info .exercises { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .delete-btn { background: none; border: none; color: var(--red); font-size: 20px; padding: 4px 8px; }
-
-  /* ─── Modal ─── */
   .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.8); display: flex; align-items: center;
@@ -169,7 +198,6 @@
   .modal-no { background: #222; color: var(--text2); }
   .modal-yes { background: var(--green); color: #000; font-weight: 700; }
 
-  /* ─── Import ─── */
   .import-upload-area {
     border: 2px dashed var(--input-border); border-radius: 12px; padding: 40px 20px;
     text-align: center; cursor: pointer; transition: border-color 0.2s;
@@ -182,6 +210,30 @@
   .import-status { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 13px; font-family: var(--mono); }
   .import-status.success { background: rgba(34,197,94,0.1); color: var(--green); }
   .import-status.error { background: rgba(239,68,68,0.1); color: var(--red); }
+
+  .swap-picker {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92); z-index: 150;
+    display: flex; flex-direction: column; padding: 16px;
+  }
+  .swap-picker-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px; max-width: 480px; width: 100%; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0;
+  }
+  .swap-picker-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .swap-picker-head h3 { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .swap-picker-close { background: none; border: none; color: var(--text2); font-size: 28px; line-height: 1; padding: 0 4px; }
+  .swap-picker-search { text-align: left !important; }
+  .swap-picker-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 6px; }
+  .swap-picker-item {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 14px 14px; color: var(--text); text-align: left;
+    font-size: 15px; min-height: 48px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .swap-picker-item:active { border-color: var(--green); }
+  .swap-picker-item .item-meta { font-size: 11px; color: var(--text3); font-family: var(--mono); flex-shrink: 0; }
+  .swap-picker-empty { color: var(--text3); font-size: 13px; text-align: center; padding: 20px; }
 
   .hidden { display: none !important; }
 </style>
@@ -206,24 +258,25 @@
 <div id="app"></div>
 
 <script>
-// ─── Data ───
+const DEFAULT_PLAN_ID = "tp1";
+const DEFAULT_TRAINING_PLANS = [{ id: DEFAULT_PLAN_ID, name: "Training Plan 1" }];
 const DEFAULT_TEMPLATES = [
-  { id:"t1", name:"① Lower (Uni)", exercises:[
+  { id:"t1", trainingPlanId:DEFAULT_PLAN_ID, name:"① Lower (Uni)", exercises:[
     {name:"Back Squat",sets:3,reps:"8-10"},{name:"Bulg. Split Squat",sets:3,reps:"10"},
     {name:"Leg Curls",sets:3,reps:"10-12"},{name:"Calf Raise",sets:3,reps:"15"},
     {name:"Cable Crunch",sets:3,reps:"15"},{name:"Wood Chops",sets:2,reps:"15"}
   ]},
-  { id:"t2", name:"② Upper (Pull)", exercises:[
+  { id:"t2", trainingPlanId:DEFAULT_PLAN_ID, name:"② Upper (Pull)", exercises:[
     {name:"BB Rows",sets:4,reps:"6-8"},{name:"Incl. DB Bench",sets:3,reps:"10"},
     {name:"Lat Pull Down",sets:3,reps:"8-10"},{name:"1 Arm LM Press",sets:3,reps:"10"},
     {name:"Face Pulls",sets:3,reps:"15-20"},{name:"DB Curl",sets:3,reps:"8-12"}
   ]},
-  { id:"t3", name:"③ Lower (Hinge)", exercises:[
+  { id:"t3", trainingPlanId:DEFAULT_PLAN_ID, name:"③ Lower (Hinge)", exercises:[
     {name:"RDL",sets:4,reps:"8-10"},{name:"Hack Squat",sets:3,reps:"10-12"},
     {name:"Hip Thrust",sets:3,reps:"10-12"},{name:"Leg Extension",sets:3,reps:"12-15"},
     {name:"Pallof Press",sets:3,reps:"10"},{name:"Leg Raises",sets:3,reps:"15"}
   ]},
-  { id:"t4", name:"④ Upper (Row)", exercises:[
+  { id:"t4", trainingPlanId:DEFAULT_PLAN_ID, name:"④ Upper (Row)", exercises:[
     {name:"LM Row",sets:4,reps:"8-10"},{name:"Incl. Bench Press",sets:3,reps:"10-12"},
     {name:"1 Arm DB Row",sets:3,reps:"10-12"},{name:"Reverse Flyes",sets:3,reps:"12-15"},
     {name:"Cable Push-Down",sets:3,reps:"10-12"},{name:"Hammer Curls",sets:2,reps:"10-12"},
@@ -232,10 +285,18 @@ const DEFAULT_TEMPLATES = [
 ];
 
 const STORAGE_KEY = "workout-app-data";
-let state = { templates: DEFAULT_TEMPLATES, logs: [], view: "home", currentWorkout: null, setsMap: {} };
+let state = {
+  templates: DEFAULT_TEMPLATES,
+  logs: [],
+  exercises: [],
+  trainingPlans: DEFAULT_TRAINING_PLANS,
+  currentPlanId: null,
+  view: "plans",
+  currentWorkout: null,
+  setsMap: {}
+};
 let modalCallback = null;
 
-// ─── Helpers ───
 const uid = () => Math.random().toString(36).slice(2, 10);
 const todayStr = () => new Date().toISOString().slice(0, 10);
 function parseReps(r) {
@@ -251,7 +312,32 @@ function initSetsData(ex) {
 }
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 
-// ─── Storage ───
+function normName(n) {
+  return String(n || "")
+    .toLowerCase()
+    .replace(/[.,()'"`]/g, "")
+    .replace(/[-_/]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+function resolveExerciseId(name, { create = true } = {}) {
+  const key = normName(name);
+  if (!key) return null;
+  const hit = state.exercises.find(e =>
+    normName(e.name) === key || (e.aliases || []).some(a => normName(a) === key)
+  );
+  if (hit) {
+    if (name && name !== hit.name && !(hit.aliases || []).includes(name)) {
+      (hit.aliases = hit.aliases || []).push(name);
+    }
+    return hit.id;
+  }
+  if (!create) return null;
+  const rec = { id: uid(), name: name.trim(), aliases: [] };
+  state.exercises.push(rec);
+  return rec.id;
+}
+
 function loadDataSync() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -260,11 +346,16 @@ function loadDataSync() {
 }
 function saveDataSync() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ templates: state.templates, logs: state.logs }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      templates: state.templates,
+      logs: state.logs,
+      exercises: state.exercises,
+      trainingPlans: state.trainingPlans,
+      currentPlanId: state.currentPlanId
+    }));
   } catch(e) { console.error("Save failed:", e); }
 }
 
-// ─── Modal ───
 function showModal(text, cb, confirmText) {
   document.getElementById("modal-text").textContent = text;
   document.getElementById("modal-confirm").textContent = confirmText || "Confirm";
@@ -274,14 +365,17 @@ function showModal(text, cb, confirmText) {
 function closeModal() { document.getElementById("modal").classList.add("hidden"); modalCallback = null; }
 function confirmModal() { if (modalCallback) modalCallback(); closeModal(); }
 
-// ─── Render ───
 function render() {
   const app = document.getElementById("app");
   const ha = document.getElementById("header-actions");
   const db = document.getElementById("date-bar");
 
-  if (state.view === "home") {
-    ha.innerHTML = `<button onclick="go('templates')">Templates</button><button onclick="go('import')">Import</button><button onclick="go('history')">History</button>`;
+  if (state.view === "plans") {
+    ha.innerHTML = "";
+    db.classList.add("hidden");
+    app.innerHTML = renderPlans();
+  } else if (state.view === "home") {
+    ha.innerHTML = `<button onclick="go('import')">Import</button><button onclick="go('history')">History</button>`;
     db.textContent = new Date().toLocaleDateString("en-US", { weekday:"long", month:"short", day:"numeric" });
     db.classList.remove("hidden");
     app.innerHTML = renderHome();
@@ -297,10 +391,6 @@ function render() {
     ha.innerHTML = "";
     db.classList.add("hidden");
     app.innerHTML = renderHistory();
-  } else if (state.view === "templates") {
-    ha.innerHTML = "";
-    db.classList.add("hidden");
-    app.innerHTML = renderTemplates();
   } else if (state.view === "import") {
     ha.innerHTML = "";
     db.classList.add("hidden");
@@ -318,16 +408,60 @@ function render() {
 
 function go(view) { state.view = view; render(); }
 
-// ─── Home ───
-function renderHome() {
-  let h = `<div class="section"><div class="section-title">Choose Workout</div>`;
-  state.templates.forEach(t => {
-    const totalSets = t.exercises.reduce((a,e) => a + e.sets, 0);
-    h += `<button class="template-btn" onclick="startWorkout('${t.id}')">
-      <div class="name">${esc(t.name)}</div>
-      <div class="meta">${t.exercises.length} exercises · ${totalSets} sets</div>
+function renderPlans() {
+  let h = `<div class="section"><div class="section-title">Select Training Plan</div>`;
+  state.trainingPlans.forEach(p => {
+    const count = state.templates.filter(t => t.trainingPlanId === p.id).length;
+    h += `<button class="template-btn" onclick="selectPlan('${p.id}')">
+      <div class="name">${esc(p.name)}</div>
+      <div class="meta">${count} workout${count === 1 ? "" : "s"}</div>
     </button>`;
   });
+  h += `<button class="create-btn" onclick="createPlan()">+ Create New Training Plan</button></div>`;
+  return h;
+}
+
+function selectPlan(id) {
+  if (!state.trainingPlans.some(p => p.id === id)) return;
+  state.currentPlanId = id;
+  saveDataSync();
+  go("home");
+}
+
+function createPlan() {
+  const name = prompt("Training plan name:");
+  if (!name || !name.trim()) return;
+  const plan = { id: uid(), name: name.trim() };
+  state.trainingPlans.push(plan);
+  state.currentPlanId = plan.id;
+  saveDataSync();
+  go("home");
+}
+
+function currentPlan() {
+  return state.trainingPlans.find(p => p.id === state.currentPlanId) || null;
+}
+
+function renderHome() {
+  const plan = currentPlan();
+  const planName = plan ? plan.name : "Workouts";
+  const workouts = state.templates.filter(t => t.trainingPlanId === state.currentPlanId);
+  let h = `<div class="section">
+    <button class="link-btn" onclick="go('plans')" style="margin-bottom:12px">← Plans</button>
+    <div class="section-title">${esc(planName)}</div>`;
+  workouts.forEach(t => {
+    const totalSets = t.exercises.reduce((a,e) => a + e.sets, 0);
+    h += `<div class="workout-row">
+      <button class="template-btn" onclick="startWorkout('${t.id}')">
+        <div class="name">${esc(t.name)}</div>
+        <div class="meta">${t.exercises.length} exercises · ${totalSets} sets</div>
+      </button>
+      <button class="workout-edit-btn" onclick="editWorkout('${t.id}')" aria-label="Edit workout">✎</button>
+    </div>`;
+  });
+  if (workouts.length === 0) {
+    h += `<p style="color:var(--text3);font-size:14px;margin:8px 0 12px">No workouts in this plan yet.</p>`;
+  }
   h += `<button class="create-btn" onclick="go('newWorkout')">+ Create New Workout</button></div>`;
   return h;
 }
@@ -335,14 +469,25 @@ function renderHome() {
 function startWorkout(id) {
   const t = state.templates.find(x => x.id === id);
   if (!t) return;
-  state.currentWorkout = JSON.parse(JSON.stringify(t));
+  state.currentWorkout = t;
   state.setsMap = {};
-  t.exercises.forEach(ex => { state.setsMap[ex.name] = initSetsData(ex); });
+  t.exercises.forEach(ex => { state.setsMap[ex.name] = buildSetsWithLast(ex); });
   state.view = "workout";
   render();
 }
 
-// ─── Workout ───
+function buildSetsWithLast(ex) {
+  const sets = initSetsData(ex);
+  const last = getLastPerformanceSets(ex.exerciseId);
+  if (last && last.length > 0) {
+    sets.forEach((s, i) => {
+      const src = last[Math.min(i, last.length - 1)];
+      if (src && src.weight) { s.weight = String(src.weight); s.prefilled = true; }
+    });
+  }
+  return sets;
+}
+
 function renderWorkout() {
   const w = state.currentWorkout;
   let completed = 0, total = 0;
@@ -363,28 +508,41 @@ function renderWorkout() {
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
     </div>`;
 
-  w.exercises.forEach(ex => {
+  const lastIdx = w.exercises.length - 1;
+  w.exercises.forEach((ex, exIdx) => {
     const sets = state.setsMap[ex.name] || [];
     const allDone = sets.length > 0 && sets.every(s => s.completed);
     h += `<div class="exercise-card${allDone ? ' all-done' : ''}">
       <div class="exercise-header">
-        <h3 class="${allDone ? 'done' : ''}">${esc(ex.name)}</h3>
-        <span class="spec">${ex.sets}×${esc(ex.reps)}</span>
-      </div>
-      <div class="col-labels"><span class="w">Weight</span><span class="r">Reps</span><span class="c"></span></div>`;
+        <div class="title-wrap">
+          <h3 class="${allDone ? 'done' : ''}">${esc(ex.name)}</h3>
+          <span class="spec">${ex.sets}×${esc(ex.reps)}</span>
+        </div>
+        <div class="ex-ctrls">
+          <button class="ex-ctrl-btn" onclick="moveExercise(${exIdx},-1)" ${exIdx === 0 ? 'disabled' : ''} aria-label="Move up">↑</button>
+          <button class="ex-ctrl-btn" onclick="moveExercise(${exIdx},1)" ${exIdx === lastIdx ? 'disabled' : ''} aria-label="Move down">↓</button>
+          <button class="ex-ctrl-btn remove" onclick="removeFromWorkout(${exIdx})" aria-label="Remove">×</button>
+        </div>
+      </div>`;
 
-    const lastHint = getLastPerformance(ex.name);
-    if (lastHint) h += `<div class="last-hint">Last: ${esc(lastHint)}</div>`;
+    const lastSets = getLastPerformanceSets(ex.exerciseId);
+    if (lastSets && lastSets.length > 0) {
+      const chips = lastSets.map(s => `<span class="last-set">${esc(String(s.weight||"—"))}×${esc(String(s.reps))}</span>`).join('<span class="last-sep">·</span>');
+      h += `<div class="last-hint"><span class="last-label">Last time</span>${chips}</div>`;
+    }
+
+    h += `<div class="col-labels"><span class="w">Weight (kg)</span><span class="r">Reps</span><span class="c"></span></div>`;
 
     const defaultReps = parseReps(ex.reps);
     sets.forEach((s, i) => {
       const repsVal = (s.reps === defaultReps && !s.completed) ? "" : s.reps;
+      const isPrefilled = s.weight !== "" && s.prefilled === true && !s.completed;
       h += `<div class="set-row${s.completed ? ' completed' : ''}">
         <span class="set-num">S${s.setNum}</span>
-        <input type="number" inputmode="decimal" placeholder="kg" class="weight-input"
+        <input type="text" inputmode="decimal" pattern="[0-9]*\\.?[0-9]*" placeholder="kg" class="weight-input${isPrefilled ? ' prefilled' : ''}"
           value="${esc(String(s.weight))}"
           onchange="updateSet('${esc(ex.name)}',${i},'weight',this.value)">
-        <input type="number" inputmode="numeric" placeholder="${defaultReps}" class="reps-input"
+        <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="${defaultReps}" class="reps-input"
           value="${repsVal}"
           onchange="updateSet('${esc(ex.name)}',${i},'reps',this.value)">
         <button class="check-btn${s.completed ? ' done' : ''}"
@@ -395,6 +553,7 @@ function renderWorkout() {
   });
 
   const canFinish = completed > 0;
+  h += `<button class="add-exercise-btn" onclick="openAddExercisePicker()">+ Add Exercise</button>`;
   h += `<button class="primary-btn finish-btn" ${canFinish ? '' : 'disabled'} onclick="finishWorkout()">Finish Workout</button></div>`;
   return h;
 }
@@ -404,12 +563,12 @@ function updateSet(exName, idx, field, val) {
   if (!sets || !sets[idx]) return;
   if (field === "weight") {
     sets[idx].weight = val;
-    // offer to apply to all if first set
+    sets[idx].prefilled = false;
     if (idx === 0 && val) {
-      const empties = sets.slice(1).filter(s => !s.weight);
+      const empties = sets.slice(1).filter(s => !s.weight || s.prefilled);
       if (empties.length > 0) {
         showModal(`Apply ${val} kg to all sets of ${exName}?`, () => {
-          sets.forEach(s => { if (!s.weight) s.weight = val; });
+          sets.forEach(s => { if (!s.weight || s.prefilled) { s.weight = val; s.prefilled = false; } });
           render();
         }, "Apply All");
       }
@@ -425,6 +584,7 @@ function toggleSet(exName, idx) {
   const sets = state.setsMap[exName];
   if (!sets || !sets[idx]) return;
   sets[idx].completed = !sets[idx].completed;
+  if (sets[idx].completed) sets[idx].prefilled = false;
   render();
 }
 
@@ -440,7 +600,7 @@ function finishWorkout() {
   const log = {
     id: uid(), date: todayStr(), workoutName: w.name,
     exercises: w.exercises.map(ex => ({
-      name: ex.name, targetSets: ex.sets, targetReps: ex.reps,
+      name: ex.name, exerciseId: ex.exerciseId, targetSets: ex.sets, targetReps: ex.reps,
       sets: (state.setsMap[ex.name] || []).map(s => ({...s}))
     }))
   };
@@ -452,7 +612,6 @@ function finishWorkout() {
   render();
 }
 
-// ─── New Workout ───
 let newExercises = [];
 function renderNewWorkout() {
   if (newExercises.length === 0) newExercises = [{ id: uid(), name:"", sets:3, reps:"10" }];
@@ -486,7 +645,10 @@ function renderNewWorkout() {
 
 function addNewEx() { newExercises.push({ id: uid(), name:"", sets:3, reps:"10" }); render(); }
 function removeNewEx(i) { newExercises.splice(i, 1); render(); }
-function cancelNewWorkout() { newExercises = []; go("home"); }
+function cancelNewWorkout() {
+  newExercises = [];
+  go("home");
+}
 
 function saveNewWorkout() {
   const nameEl = document.getElementById("new-workout-name");
@@ -494,17 +656,60 @@ function saveNewWorkout() {
   if (!name) return;
   const valid = newExercises.filter(e => e.name.trim());
   if (valid.length === 0) return;
-  const template = {
-    id: uid(), name,
-    exercises: valid.map(e => ({ name: e.name.trim(), sets: parseInt(e.sets)||3, reps: e.reps||"10" }))
-  };
+  const exercises = valid.map(e => {
+    const nm = e.name.trim();
+    return { name: nm, exerciseId: e.exerciseId || resolveExerciseId(nm), sets: parseInt(e.sets)||3, reps: e.reps||"10" };
+  });
+  const template = { id: uid(), trainingPlanId: state.currentPlanId, name, exercises };
   state.templates.push(template);
   saveDataSync();
   newExercises = [];
   startWorkout(template.id);
 }
 
-// ─── History ───
+function deleteWorkout(id) {
+  const t = state.templates.find(x => x.id === id);
+  if (!t) return;
+  showModal(`Delete "${t.name}"? This cannot be undone.`, () => {
+    state.templates = state.templates.filter(x => x.id !== id);
+    saveDataSync();
+    render();
+  });
+}
+
+function editWorkout(id) {
+  const t = state.templates.find(x => x.id === id);
+  if (!t) return;
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <p>${esc(t.name)}</p>
+      <div class="edit-menu-actions">
+        <button class="edit-menu-btn" id="em-rename">Rename</button>
+        <button class="edit-menu-btn danger" id="em-delete">Delete</button>
+        <button class="edit-menu-btn cancel" id="em-cancel">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  document.getElementById("em-rename").onclick = () => {
+    close();
+    const newName = prompt("New workout name:", t.name);
+    if (newName && newName.trim() && newName.trim() !== t.name) {
+      t.name = newName.trim();
+      saveDataSync();
+      render();
+    }
+  };
+  document.getElementById("em-delete").onclick = () => {
+    close();
+    deleteWorkout(id);
+  };
+  document.getElementById("em-cancel").onclick = close;
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+}
+
 function renderHistory() {
   let h = `<div class="section">
     <div class="history-header">
@@ -522,7 +727,8 @@ function renderHistory() {
         <span class="date">${esc(log.date)}</span></div>`;
       log.exercises.forEach(ex => {
         const done = ex.sets.filter(s => s.completed).map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ");
-        h += `<button class="ex-name" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;padding:0;text-align:left;text-decoration:underline;text-decoration-color:var(--text4)" onclick="showExerciseHistory('${esc(ex.name)}')">${esc(ex.name)}</button><div class="ex-sets">${esc(done)}</div>`;
+        const exKey = ex.exerciseId || "";
+        h += `<button class="ex-name" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;padding:0;text-align:left;text-decoration:underline;text-decoration-color:var(--text4)" onclick="showExerciseHistory('${esc(exKey)}','${esc(ex.name)}')">${esc(ex.name)}</button><div class="ex-sets">${esc(done)}</div>`;
       });
       h += `<div class="card-actions">
         <button class="edit-btn" onclick="editLog('${log.id}')">Edit</button>
@@ -541,6 +747,7 @@ function exportJSON() {
       date: log.date, workout: log.workoutName,
       exercises: log.exercises.map(ex => ({
         name: ex.name,
+        exerciseId: ex.exerciseId,
         target: { sets: ex.targetSets, reps: ex.targetReps },
         completed: ex.sets.filter(s => s.completed).map(s => ({
           set: s.setNum, weight_kg: parseFloat(s.weight) || null, reps: s.reps
@@ -550,7 +757,6 @@ function exportJSON() {
   };
   const json = JSON.stringify(data, null, 2);
 
-  // Show export overlay
   const overlay = document.createElement("div");
   overlay.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:200;display:flex;flex-direction:column;padding:16px;";
   overlay.innerHTML = `
@@ -578,34 +784,6 @@ function exportJSON() {
   document.getElementById("export-close").onclick = () => overlay.remove();
 }
 
-// ─── Templates manage ───
-function renderTemplates() {
-  let h = `<div class="section">
-    <button class="link-btn" onclick="go('home')" style="margin-bottom:16px">← Back</button>
-    <div class="section-title">Manage Templates</div>`;
-  state.templates.forEach(t => {
-    h += `<div class="template-manage-card">
-      <div class="info">
-        <div class="name">${esc(t.name)}</div>
-        <div class="exercises">${t.exercises.map(e => esc(e.name)).join(", ")}</div>
-      </div>
-      <button class="delete-btn" onclick="deleteTemplate('${t.id}')">×</button>
-    </div>`;
-  });
-  h += `</div>`;
-  return h;
-}
-
-function deleteTemplate(id) {
-  const t = state.templates.find(x => x.id === id);
-  showModal(`Delete "${t ? t.name : 'template'}"? This cannot be undone.`, () => {
-    state.templates = state.templates.filter(t => t.id !== id);
-    saveDataSync();
-    render();
-  });
-}
-
-// ─── Import ───
 function renderImport() {
   return `<div class="section">
     <button class="link-btn" onclick="go('home')" style="margin-bottom:16px">← Back</button>
@@ -640,7 +818,6 @@ function importJSON(file) {
         statusEl.textContent = "Invalid format: missing 'workouts' array.";
         return;
       }
-      // Build set of existing logs for dedup
       const existing = new Set(state.logs.map(l => l.date + "|" + l.workoutName));
       let imported = 0, skipped = 0;
       data.workouts.forEach(w => {
@@ -651,6 +828,7 @@ function importJSON(file) {
           workoutName: w.workout,
           exercises: w.exercises.map(ex => ({
             name: ex.name,
+            exerciseId: ex.exerciseId || resolveExerciseId(ex.name),
             targetSets: ex.target.sets,
             targetReps: String(ex.target.reps),
             sets: ex.completed.map(s => ({
@@ -680,26 +858,142 @@ function importJSON(file) {
   reader.readAsText(file);
 }
 
-// ─── Progression ───
-function getLastPerformance(exName) {
+function getLastPerformanceSets(exerciseId) {
+  if (!exerciseId) return null;
   for (let i = state.logs.length - 1; i >= 0; i--) {
-    const ex = state.logs[i].exercises.find(e => e.name === exName);
+    const ex = state.logs[i].exercises.find(e => e.exerciseId === exerciseId);
     if (ex) {
       const done = ex.sets.filter(s => s.completed);
-      if (done.length > 0) return done.map(s => `${s.weight||"—"}×${s.reps}`).join("  ·  ");
+      if (done.length > 0) return done;
     }
   }
   return null;
 }
 
-function showExerciseHistory(exName) {
+function removeFromWorkout(exIdx) {
+  const w = state.currentWorkout;
+  if (!w || !w.exercises[exIdx]) return;
+  const ex = w.exercises[exIdx];
+  showModal(`Remove "${ex.name}" from this workout?`, () => {
+    w.exercises.splice(exIdx, 1);
+    delete state.setsMap[ex.name];
+    saveDataSync();
+    render();
+  }, "Remove");
+}
+
+function moveExercise(exIdx, dir) {
+  const w = state.currentWorkout;
+  if (!w) return;
+  const arr = w.exercises;
+  const newIdx = exIdx + dir;
+  if (newIdx < 0 || newIdx >= arr.length) return;
+  [arr[exIdx], arr[newIdx]] = [arr[newIdx], arr[exIdx]];
+  saveDataSync();
+  render();
+}
+
+function openAddExercisePicker() {
+  const inWorkout = new Set(state.currentWorkout.exercises.map(e => e.exerciseId).filter(Boolean));
+  const items = state.exercises
+    .filter(e => !inWorkout.has(e.id))
+    .map(e => {
+      const sets = getLastPerformanceSets(e.id);
+      const summary = sets ? sets.map(s => `${s.weight||"—"}×${s.reps}`).join(" · ") : "";
+      return { id: e.id, name: e.name, summary };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const overlay = document.createElement("div");
+  overlay.className = "swap-picker";
+  overlay.innerHTML = `
+    <div class="swap-picker-box">
+      <div class="swap-picker-head">
+        <h3>Add Exercise</h3>
+        <button class="swap-picker-close" id="add-close" aria-label="Close">×</button>
+      </div>
+      <input type="text" class="swap-picker-search" id="add-search"
+        placeholder="Search or type a new exercise..." autocomplete="off" autocapitalize="words">
+      <div class="swap-picker-list" id="add-list">
+        ${items.length === 0
+          ? `<div class="swap-picker-empty">No exercises yet. Type a name above.</div>`
+          : items.map(it => `<button class="swap-picker-item" data-id="${esc(it.id)}" data-name="${esc(it.name)}">
+              <span>${esc(it.name)}</span>
+              ${it.summary ? `<span class="item-meta">${esc(it.summary)}</span>` : ''}
+            </button>`).join('')}
+      </div>
+      <div class="add-ex-fields">
+        <div><label>Sets</label><input type="number" inputmode="numeric" id="add-sets" value="3"></div>
+        <div><label>Reps</label><input type="text" id="add-reps" value="8-10"></div>
+      </div>
+      <button class="primary-btn" id="add-confirm" disabled>Add</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const search = document.getElementById('add-search');
+  const list = document.getElementById('add-list');
+  const setsInput = document.getElementById('add-sets');
+  const repsInput = document.getElementById('add-reps');
+  const confirmBtn = document.getElementById('add-confirm');
+  let selectedId = null;
+
+  const updateConfirm = () => { confirmBtn.disabled = !search.value.trim(); };
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    selectedId = null;
+    Array.from(list.children).forEach(btn => {
+      if (!btn.dataset || !btn.dataset.name) return;
+      btn.style.display = btn.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+    });
+    updateConfirm();
+  });
+  list.addEventListener('click', e => {
+    const btn = e.target.closest('.swap-picker-item');
+    if (!btn) return;
+    search.value = btn.dataset.name;
+    selectedId = btn.dataset.id;
+    updateConfirm();
+  });
+  document.getElementById('add-close').onclick = () => overlay.remove();
+  confirmBtn.onclick = () => {
+    const name = search.value.trim();
+    if (!name) return;
+    const sets = parseInt(setsInput.value) || 3;
+    const reps = (repsInput.value || "").trim() || "8-10";
+    addExerciseToWorkout(name, sets, reps, selectedId);
+    overlay.remove();
+  };
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function addExerciseToWorkout(name, sets, reps, exerciseId) {
+  const w = state.currentWorkout;
+  if (!w) return;
+  let finalName = name;
+  while (state.setsMap[finalName]) finalName += " (2)";
+  const ex = {
+    name: finalName,
+    exerciseId: exerciseId || resolveExerciseId(name),
+    sets: Math.max(1, parseInt(sets) || 3),
+    reps: reps || "8-10"
+  };
+  w.exercises.push(ex);
+  state.setsMap[finalName] = buildSetsWithLast(ex);
+  saveDataSync();
+  render();
+}
+
+function showExerciseHistory(exerciseId, exName) {
+  state.exerciseHistoryId = exerciseId;
   state.exerciseHistoryName = exName;
   state.view = "exerciseHistory";
   render();
 }
 
 function renderExerciseHistory() {
-  const name = state.exerciseHistoryName;
+  const id = state.exerciseHistoryId;
+  const rec = id ? state.exercises.find(e => e.id === id) : null;
+  const name = (rec && rec.name) || state.exerciseHistoryName || "Exercise";
   let h = `<div class="section">
     <button class="link-btn" onclick="go('history')" style="margin-bottom:16px">← Back</button>
     <div class="section-title">${esc(name)} History</div>
@@ -707,7 +1001,7 @@ function renderExerciseHistory() {
 
   let found = false;
   [...state.logs].reverse().forEach(log => {
-    const ex = log.exercises.find(e => e.name === name);
+    const ex = log.exercises.find(e => id ? e.exerciseId === id : e.name === name);
     if (!ex) return;
     const done = ex.sets.filter(s => s.completed);
     if (done.length === 0) return;
@@ -720,7 +1014,6 @@ function renderExerciseHistory() {
   return h;
 }
 
-// ─── Edit Log ───
 let editLogData = null;
 
 function editLog(logId) {
@@ -751,10 +1044,10 @@ function renderEditLog() {
     ex.sets.forEach((s, si) => {
       h += `<div class="set-row${s.completed ? '' : ' completed'}">
         <span class="set-num">S${s.setNum}</span>
-        <input type="number" inputmode="decimal" placeholder="kg" class="weight-input"
+        <input type="text" inputmode="decimal" pattern="[0-9]*\\.?[0-9]*" placeholder="kg" class="weight-input"
           value="${esc(String(s.weight))}"
           onchange="editLogData.exercises[${ei}].sets[${si}].weight=this.value">
-        <input type="number" inputmode="numeric" placeholder="0" class="reps-input"
+        <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" class="reps-input"
           value="${s.reps}"
           onchange="editLogData.exercises[${ei}].sets[${si}].reps=parseInt(this.value)||0">
         <button class="check-btn${s.completed ? ' done' : ''}"
@@ -790,17 +1083,48 @@ function deleteLog(logId) {
   });
 }
 
-// ─── Init ───
 (() => {
   const data = loadDataSync();
   if (data) {
     if (data.templates) state.templates = data.templates;
     if (data.logs) state.logs = data.logs;
+    if (data.exercises) state.exercises = data.exercises;
+    if (data.trainingPlans && data.trainingPlans.length) state.trainingPlans = data.trainingPlans;
+    if (data.currentPlanId) state.currentPlanId = data.currentPlanId;
   }
-  // Migrate renamed exercises in saved templates
+  state.exercises.forEach(e => { if (!e.aliases) e.aliases = []; });
+
+  if (!state.trainingPlans.some(p => p.id === DEFAULT_PLAN_ID)) {
+    state.trainingPlans.unshift({ id: DEFAULT_PLAN_ID, name: "Training Plan 1" });
+  }
+  state.templates.forEach(t => {
+    if (!t.trainingPlanId) t.trainingPlanId = DEFAULT_PLAN_ID;
+  });
+
   state.templates.forEach(t => t.exercises.forEach(e => {
     if (e.name === "Mach. LH Press") e.name = "1 Arm LM Press";
   }));
+
+  const seededId = resolveExerciseId("1 Arm LM Press");
+  const seededRec = state.exercises.find(e => e.id === seededId);
+  if (seededRec && !seededRec.aliases.includes("Mach. LH Press")) {
+    seededRec.aliases.push("Mach. LH Press");
+  }
+
+  state.templates.forEach(t => t.exercises.forEach(e => {
+    if (!e.exerciseId) e.exerciseId = resolveExerciseId(e.name);
+  }));
+  state.logs.forEach(l => l.exercises.forEach(e => {
+    if (!e.exerciseId) e.exerciseId = resolveExerciseId(e.name);
+  }));
+
+  if (state.currentPlanId && state.trainingPlans.some(p => p.id === state.currentPlanId)) {
+    state.view = "home";
+  } else {
+    state.currentPlanId = null;
+    state.view = "plans";
+  }
+
   saveDataSync();
   render();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
